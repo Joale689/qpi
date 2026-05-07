@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QPi – Politik direkt aus der Quelle</title>
+
+  <style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  margin: 0;
+  padding: 0;
+  color: #222;
+}
+
+#header {
+  background: #1e293b;
+  color: white;
+  padding: 30px 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+#header h1 {
+  margin: 0;
+  font-size: 42px;
+  letter-spacing: 2px;
+}
+
+#header p {
+  margin-top: 10px;
+  color: #cbd5e1;
+  font-size: 16px;
+}
+
+#filters {
+  padding: 20px;
+  text-align: center;
+}
+
+.filter-btn {
+  margin: 5px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #d1d5db;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.filter-btn:hover {
+  background: #9ca3af;
+}
+
+.filter-btn.active {
+  background: #1e293b;
+  color: white;
+}
+
+#app {
+  max-width: 900px;
+  margin: auto;
+  padding: 10px 20px 40px;
+}
+
+.day-group {
+  margin-bottom: 30px;
+}
+
+.day-header {
+  background: #334155;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.day-content {
+  margin-top: 10px;
+}
+
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 12px 0;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.08);
+}
+
+.card-top {
+  cursor: pointer;
+}
+
+.card-top h3 {
+  margin-top: 0;
+}
+
+.card-details {
+  margin-top: 15px;
+  display: none;
+  border-top: 1px solid #ddd;
+  padding-top: 10px;
+}
+
+.card a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.card a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 700px) {
+  #header {
+    padding: 20px 10px;
+  }
+
+  #header h1 {
+    font-size: 32px;
+  }
+
+  #header p {
+    font-size: 14px;
+  }
+
+  #filters {
+    padding: 10px;
+  }
+
+  .filter-btn {
+    width: 100%;
+    margin: 5px 0;
+    font-size: 15px;
+  }
+
+  #app {
+    padding: 10px;
+  }
+
+  .card {
+    padding: 12px;
+  }
+
+  .card-top h3 {
+    font-size: 18px;
+  }
+
+  .card-details {
+    font-size: 14px;
+  }
+
+  .day-header {
+    font-size: 15px;
+  }
+}
+
+#layout {
+  display: flex;
+  max-width: 1200px;
+  margin: auto;
+}
+
+#side-nav {
+  width: 180px;
+  padding: 20px;
+}
+
+.nav-btn {
+  display: block;
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #d1d5db;
+  cursor: pointer;
+  text-align: left;
+}
+
+.nav-btn.active {
+  background: #1e293b;
+  color: white;
+}
+
+.nav-btn.disabled {
+  opacity: 1;
+  cursor: not-allowed;
+  background: #d1d5db;
+  color: #666;
+}
+
+#main-content {
+  flex: 1;
+}
+
+@media (max-width: 700px) {
+  #layout {
+    display: block;
+  }
+
+  #side-nav {
+    width: auto;
+    padding: 10px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+  }
+
+  .nav-btn {
+    min-width: 110px;
+    text-align: center;
+  }
+}
+
+.nav-btn span {
+  display: block;
+  font-size: 11px;
+  margin-top: 4px;
+  opacity: 0.7;
+}
+
+.tag {
+  display: inline-block;
+  padding: 5px 10px;
+  margin: 4px 4px 0 0;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: bold;
+  color: white;
+}
+
+.tag-health {
+  background: #16a34a;
+}
+
+.tag-economy {
+  background: #ca8a04;
+}
+
+.tag-defense {
+  background: #dc2626;
+}
+
+.tag-education {
+  background: #2563eb;
+}
+
+.tag-environment {
+  background: #0f766e;
+}
+
+.tag-law {
+  background: #7c3aed;
+}
+
+.tag-politics {
+  background: #475569;
+}
+
+.tag-default {
+  background: #6b7280;
+}
+
+#trust-box {
+  margin-top: 30px;
+  font-size: 11px;
+  color: #cbd5e1;
+  line-height: 1.5;
+}
+
+#update-info {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+#level-info {
+  margin: 0 0 15px 0;
+  padding: 12px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #334155;
+}
+
+#refresh-btn {
+  margin-top: 10px;
+  margin-left: 53px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 8px;
+  background: #3b82f6;
+  color: white;
+  cursor: pointer;
+}
+
+#refresh-btn:hover {
+  background: #1e293b;
+}
+  </style>
+</head>
+
+<body>
+  <div id="header">
+    <h1>QPi</h1>
+    <p>Politik direkt aus der Quelle</p>
+    <div id="trust-box">
+      (QPi nutzt ausschließlich offizielle Quellen.)<br>
+      &gt;&gt; Aktuell: Deutscher Bundestag &lt;&lt;
+    </div>
+    <div id="update-info">Letztes Update wird geladen...</div>
+  </div>
+
+  <button id="refresh-btn">Jetzt aktualisieren</button>
+
+  <div id="layout">
+    <nav id="side-nav">
+      <button class="nav-btn active" data-ebene="bund">
+        Bund
+      </button>
+
+      <button class="nav-btn disabled" data-ebene="land">
+        Land
+        <span>(in Vorbereitung)</span>
+      </button>
+
+      <button class="nav-btn disabled" data-ebene="landkreis">
+        Landkreis
+        <span>(in Vorbereitung)</span>
+      </button>
+
+      <button class="nav-btn disabled" data-ebene="gemeinde">
+        Gemeinde
+        <span>(in Vorbereitung)</span>
+      </button>
+    </nav>
+
+    <main id="main-content">
+      <div id="filters"></div>
+      <div id="level-info"></div>
+      <div id="app"></div>
+    </main>
+  </div>
+
+  <script>
+const SUPABASE_URL = "https://cnxqwwzankopplenfzvq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_dGW_UHdhGkctVaowDyVUvQ_dscIaM0i";
+
+let alleNews = [];
+let aktiverFilter = "alle";
+let aktiveEbene = "bund";
+
+const filterListe = [
+  { key: "alle", label: "Alle" },
+  { key: "beschluss", label: "Beschlüsse" },
+  { key: "anhoerung", label: "Anhörungen" },
+  { key: "termin", label: "Termine" },
+  { key: "reise", label: "Reisen" },
+  { key: "bericht", label: "Berichte" },
+  { key: "in_planung", label: "In Planung" },
+  { key: "sonstiges", label: "Sonstiges" }
+];
+
+function formatDatum(datumString) {
+  const d = new Date(datumString);
+  return d.toLocaleDateString("de-DE", {
+    weekday: "long",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  });
+}
+
+function formatUhrzeit(timestamp) {
+  if (!timestamp) return "noch nicht verfügbar";
+
+  const d = new Date(timestamp);
+  if (isNaN(d.getTime())) return "noch nicht verfügbar";
+
+  return d.toLocaleString("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function istHeute(datumString) {
+  const heute = new Date().toISOString().split("T")[0];
+  return datumString === heute;
+}
+
+function istInnerhalb30Tage(datumString) {
+  const datum = new Date(datumString);
+  const grenze = new Date();
+  grenze.setDate(grenze.getDate() - 30);
+  return datum >= grenze;
+}
+
+function baueEbenenNavigation() {
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.onclick = () => {
+      aktiveEbene = btn.dataset.ebene;
+
+      document.querySelectorAll(".nav-btn").forEach(b => {
+        b.classList.remove("active");
+      });
+
+      btn.classList.add("active");
+
+      renderNews();
+    };
+  });
+}
+
+function baueFilter() {
+  const filters = document.getElementById("filters");
+  filters.innerHTML = "";
+
+  filterListe.forEach(f => {
+    const btn = document.createElement("button");
+    btn.className = "filter-btn";
+
+    if (f.key === aktiverFilter) btn.classList.add("active");
+
+    btn.textContent = f.label;
+
+    btn.onclick = () => {
+      aktiverFilter = f.key;
+      baueFilter();
+      renderNews();
+    };
+
+    filters.appendChild(btn);
+  });
+}
+
+function gruppiereNachDatum(news) {
+  const gruppen = {};
+
+  news.forEach(n => {
+    const datum = n.datum || "ohne-datum";
+    if (!gruppen[datum]) gruppen[datum] = [];
+    gruppen[datum].push(n);
+  });
+
+  return gruppen;
+}
+
+function renderTags(n) {
+  if (!Array.isArray(n.darum_gehts) || n.darum_gehts.length === 0) {
+    return "Keine Themen erkannt";
+  }
+
+  return n.darum_gehts.map(thema => {
+    let klasse = "tag-default";
+
+    if (thema.includes("Gesundheit")) klasse = "tag-health";
+    else if (thema.includes("Wirtschaft")) klasse = "tag-economy";
+    else if (thema.includes("Verteidigung")) klasse = "tag-defense";
+    else if (thema.includes("Bildung")) klasse = "tag-education";
+    else if (thema.includes("Umwelt")) klasse = "tag-environment";
+    else if (thema.includes("Gesetzgebung")) klasse = "tag-law";
+    else if (thema.includes("Parlamentarismus")) klasse = "tag-politics";
+
+    return `<span class="tag ${klasse}">${thema}</span>`;
+  }).join(" ");
+}
+
+function aktualisiereLevelInfo() {
+  const info = document.getElementById("level-info");
+  if (!info) return;
+
+  if (aktiveEbene === "bund") {
+    info.innerHTML = "<b>Ebene:</b> Bund<br><b>Aktive Quelle:</b> Deutscher Bundestag";
+  } else if (aktiveEbene === "land") {
+    info.innerHTML = "<b>Ebene:</b> Land<br>In Vorbereitung";
+  } else if (aktiveEbene === "landkreis") {
+    info.innerHTML = "<b>Ebene:</b> Landkreis<br>In Vorbereitung";
+  } else if (aktiveEbene === "gemeinde") {
+    info.innerHTML = "<b>Ebene:</b> Gemeinde<br>In Vorbereitung";
+  }
+}
+
+function renderNews() {
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+  aktualisiereLevelInfo();
+
+  let news = alleNews.filter(n =>
+    istInnerhalb30Tage(n.datum) &&
+    n.ebene === aktiveEbene
+  );
+
+  if (aktiverFilter !== "alle") {
+    news = news.filter(n => n.status === aktiverFilter);
+  }
+
+  if (news.length === 0) {
+    app.innerHTML = "<p>Für diese Ebene sind noch keine Meldungen verfügbar.</p>";
+    return;
+  }
+
+  const gruppen = gruppiereNachDatum(news);
+  const daten = Object.keys(gruppen).sort((a, b) => new Date(b) - new Date(a));
+
+  daten.forEach(datum => {
+    const gruppe = document.createElement("div");
+    gruppe.className = "day-group";
+
+    const header = document.createElement("div");
+    header.className = "day-header";
+    header.textContent = `${formatDatum(datum)} (${gruppen[datum].length})`;
+
+    const content = document.createElement("div");
+    content.className = "day-content";
+
+    if (!istHeute(datum)) content.style.display = "none";
+
+    header.onclick = () => {
+      content.style.display = content.style.display === "none" ? "block" : "none";
+    };
+
+    gruppen[datum].forEach(n => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const top = document.createElement("div");
+      top.className = "card-top";
+
+      top.innerHTML = `
+        <h3>${n.title}</h3>
+        <p><b>Darum geht's:</b> ${renderTags(n)}</p>
+      `;
+
+      const details = document.createElement("div");
+      details.className = "card-details";
+
+      details.innerHTML = `
+        <p><b>Status:</b> ${n.status || "-"}</p>
+
+        <p><b>Kurztext:</b></p>
+        <p>${n.kurz || "Noch nicht verfügbar"}</p>
+
+        <p><b>Quelle:</b> ${n.quelle || "Unbekannt"}</p>
+
+        <p><b>Datum:</b> ${n.datum || "-"}</p>
+
+        <a href="${n.quelle_url || "#"}" target="_blank">
+          Original öffnen
+        </a>
+      `;
+
+      top.onclick = () => {
+        details.style.display = details.style.display === "block" ? "none" : "block";
+      };
+
+      card.appendChild(top);
+      card.appendChild(details);
+      content.appendChild(card);
+    });
+
+    gruppe.appendChild(header);
+    gruppe.appendChild(content);
+    app.appendChild(gruppe);
+  });
+}
+
+async function ladeNews() {
+  const app = document.getElementById("app");
+  app.innerHTML = "Lade Nachrichten...";
+
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/News?select=*&order=datum.desc`,
+      {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    );
+
+    const data = await res.json();
+
+    if (!Array.isArray(data)) {
+      app.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      return;
+    }
+
+    alleNews = data;
+
+    const updateInfo = document.getElementById("update-info");
+
+    if (updateInfo && data.length > 0) {
+      updateInfo.textContent =
+        "Letztes Datenupdate: " + formatUhrzeit(data[0].updated_at);
+    }
+
+    baueEbenenNavigation();
+    baueFilter();
+    renderNews();
+
+  } catch (err) {
+    app.innerHTML = "Fehler beim Laden: " + err.message;
+  }
+}
+
+document.getElementById("refresh-btn")?.addEventListener("click", () => {
+  ladeNews();
+});
+
+ladeNews();
+  </script>
+</body>
+</html>
