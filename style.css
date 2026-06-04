@@ -1702,3 +1702,238 @@ body.modal-open {
     margin-top: 14px;
   }
 }
+/* =========================
+   PIQU-BEREICHSNAVIGATION
+========================= */
+
+.piqu-top-nav {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 18px 0 0;
+  position: relative;
+  z-index: 30;
+}
+
+.piqu-area-toggle {
+  position: relative;
+  min-height: 48px;
+  padding: 10px 54px 10px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(129, 140, 248, 0.75);
+  background: linear-gradient(135deg, rgba(30, 41, 99, 0.92), rgba(49, 46, 129, 0.86));
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+    0 0 22px rgba(96, 165, 250, 0.22),
+    0 10px 26px rgba(15, 23, 42, 0.32);
+  backdrop-filter: blur(12px);
+}
+
+.piqu-area-toggle::after {
+  content: "▼";
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #c7d2fe;
+  font-size: 15px;
+}
+
+.piqu-area-toggle.area-open::after {
+  content: "▲";
+}
+
+.piqu-toggle-main,
+.piqu-toggle-separator,
+.piqu-toggle-current {
+  display: inline-block;
+}
+
+.piqu-toggle-separator {
+  margin: 0 4px 0 2px;
+  color: #ffffff;
+  font-weight: 900;
+}
+
+.area-journal-text {
+  color: #60a5fa;
+}
+
+.area-termine-text {
+  color: #a78bfa;
+}
+
+.area-gesetzesmonitor-text {
+  color: #2dd4bf;
+}
+
+.piqu-area-menu {
+  width: min(430px, 100%);
+  margin-top: 14px;
+  padding: 10px;
+  border-radius: 22px;
+  background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 89, 0.94));
+  border: 1px solid rgba(129, 140, 248, 0.42);
+  box-shadow:
+    0 22px 46px rgba(0, 0, 0, 0.34),
+    0 0 28px rgba(79, 70, 229, 0.18);
+  display: grid;
+  gap: 10px;
+}
+
+.piqu-area-menu.hidden {
+  display: none;
+}
+
+.piqu-area-btn {
+  position: relative;
+  width: 100%;
+  min-height: 82px;
+  padding: 14px 46px 14px 88px;
+  border-radius: 17px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(255, 255, 255, 0.07);
+  color: #e5edf8;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition: 0.16s ease;
+}
+
+.piqu-area-btn::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 5px;
+  border-radius: 999px;
+  opacity: 0.95;
+}
+
+.piqu-area-btn::after {
+  content: "›";
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #c7d2fe;
+  font-size: 34px;
+  line-height: 1;
+  font-weight: 300;
+}
+
+.piqu-area-icon {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  width: 54px;
+  height: 54px;
+  transform: translateY(-50%);
+  border-radius: 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  line-height: 1;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 10px 22px rgba(0, 0, 0, 0.20);
+}
+
+.piqu-area-text strong {
+  display: block;
+  font-size: 17px;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.piqu-area-text span {
+  display: block;
+  margin-top: 5px;
+  color: #bac7db;
+  font-size: 12.8px;
+  font-weight: 800;
+}
+
+.piqu-area-btn[data-area="journal"]::before {
+  background: #60a5fa;
+}
+
+.piqu-area-btn[data-area="termine"]::before {
+  background: #a78bfa;
+}
+
+.piqu-area-btn[data-area="gesetzesmonitor"]::before {
+  background: #2dd4bf;
+}
+
+.piqu-area-btn[data-area="journal"] .piqu-area-icon {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  color: #ffffff;
+}
+
+.piqu-area-btn[data-area="termine"] .piqu-area-icon {
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: #ffffff;
+}
+
+.piqu-area-btn[data-area="gesetzesmonitor"] .piqu-area-icon {
+  background: linear-gradient(135deg, #0f766e, #2563eb);
+  color: #ffffff;
+}
+
+.piqu-area-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(191, 219, 254, 0.34);
+}
+
+.piqu-area-btn.active {
+  color: #ffffff;
+  border-color: rgba(191, 219, 254, 0.52);
+  box-shadow:
+    0 0 22px rgba(96, 165, 250, 0.26),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.piqu-area-btn[data-area="journal"].active {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(79, 70, 229, 0.92));
+}
+
+.piqu-area-btn[data-area="termine"].active {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.96), rgba(59, 130, 246, 0.88));
+}
+
+.piqu-area-btn[data-area="gesetzesmonitor"].active {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.88), rgba(37, 99, 235, 0.88));
+}
+
+@media (max-width: 640px) {
+  .piqu-top-nav {
+    width: min(100% - 22px, 620px);
+    padding-top: 12px;
+  }
+
+  .piqu-area-toggle {
+    width: 100%;
+    text-align: center;
+    padding-left: 14px;
+    padding-right: 48px;
+  }
+
+  .piqu-area-menu {
+    width: 100%;
+  }
+
+  .piqu-area-btn {
+    padding-left: 82px;
+  }
+
+  .piqu-area-icon {
+    left: 18px;
+  }
+}

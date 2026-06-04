@@ -11,6 +11,7 @@ let aktiveEbene = "bund";
 let aktiveQuelle = "alle";
 let zitateAusblenden = false;
 let aktiveAnsicht = "journal";
+let aktiverBereich = "journal";
 let zielMeldungId = null;
 let zielJournalId = null;
 
@@ -744,6 +745,98 @@ function formatDatumKurz(datumString) {
     month: "2-digit",
     year: "numeric"
   });
+}
+
+function formatDatumLangMitWochentag(datumString) {
+  const d = new Date(datumString);
+
+  if (isNaN(d.getTime())) {
+    return "ohne Datum";
+  }
+
+  return d.toLocaleDateString("de-DE", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+}
+
+function lokalesDatumsObjekt(datumString) {
+  if (!datumString) return null;
+
+  const teile = String(datumString).split("T")[0].split("-").map(Number);
+  if (teile.length !== 3 || teile.some(Number.isNaN)) return null;
+
+  return new Date(teile[0], teile[1] - 1, teile[2]);
+}
+
+function istZukuenftigesDatum(datumString) {
+  const datum = lokalesDatumsObjekt(datumString);
+  if (!datum) return false;
+
+  const heute = new Date();
+  const heuteNurDatum = new Date(heute.getFullYear(), heute.getMonth(), heute.getDate());
+
+  return datum.getTime() > heuteNurDatum.getTime();
+}
+
+function istZukuenftigerBundesratTop(n) {
+  return Boolean(n && n.ist_bundesrat_top && istZukuenftigesDatum(n.datum));
+}
+
+function bereinigeTopTitel(titelRaw) {
+  return String(titelRaw || "")
+    .replace(/^TOP\s+\d+\s*[:.-]?\s*/i, "")
+    .trim();
+}
+
+function baueZukunftsBundesratEinleitung(n) {
+  const datum = formatDatumLangMitWochentag(n.datum);
+  const titel = bereinigeTopTitel(n.top_titel || n.title || "diesem Tagesordnungspunkt");
+  const statusText = statusBundesratLabel(n.status_normiert);
+
+  const saetze = [
+    `Laut Tagesordnung wird sich der Bundesrat in seiner Sitzung am ${datum} mit ${titel} befassen.`,
+    n.top_nummer ? `Der Vorgang steht dort als TOP ${n.top_nummer}.` : "",
+    statusText ? `Der sichtbare Verfahrensstand lautet: ${statusText}.` : "",
+    "Da die Sitzung noch bevorsteht, ist das noch kein abgeschlossener Beschluss. Die Tagesordnung und der genaue Ablauf können sich bis zur Sitzung noch ändern."
+  ];
+
+  return saetze.filter(Boolean).join(" ");
+}
+
+function baueZukunftsJournalArtikel(n, gespeicherterArtikel) {
+  const abschnitte = [];
+  abschnitte.push(baueZukunftsBundesratEinleitung(n));
+
+  const vorhandeneAbschnitte = String(gespeicherterArtikel || "")
+    .split(/\n+/)
+    .map(absatz => absatz.trim())
+    .filter(Boolean);
+
+  // Den ersten gespeicherten Absatz lassen wir bewusst weg, weil er bei zukünftigen
+  // Bundesrat-Sitzungen oft fälschlich in der Vergangenheitsform formuliert ist
+  // („hat sich befasst“, „hat überwiesen“). Die folgenden Absätze enthalten meist
+  // die eigentliche Sachinformation und bleiben erhalten.
+  const sachAbschnitte = vorhandeneAbschnitte.slice(1);
+
+  if (sachAbschnitte.length > 0) {
+    sachAbschnitte.forEach(absatz => abschnitte.push(absatz));
+  } else {
+    const ziel = ersterText(n.ki_ziel, n.ki_warum);
+    const betroffen = ersterText(n.ki_betroffen);
+    const buerger = ersterText(n.ki_buergerauswirkung);
+
+    if (istGuterText(ziel)) abschnitte.push(ziel);
+    if (istGuterText(betroffen)) abschnitte.push(betroffen);
+    if (istGuterText(buerger)) abschnitte.push(buerger);
+  }
+
+  return abschnitte
+    .filter(istGuterText)
+    .map(absatz => textAbsatz(absatz))
+    .join("");
 }
 
 function formatUhrzeit(timestamp) {
@@ -1680,11 +1773,27 @@ function zeigeLeerenZustand(app) {
   `;
 }
 
+function istZukunftsMeldung(n) {
+  if (!n || !n.datum) return false;
+  return istZukuenftigesDatum(n.datum);
+}
+
 function ermittleGefilterteNews() {
   let news = alleNews.filter(n =>
     istInnerhalb30Tage(n.datum) &&
     n.ebene === aktiveEbene
   );
+
+  // Bereichslogik:
+  // Journal = heute + Vergangenheit
+  // Politische Termine = echte Zukunft
+  if (aktiverBereich === "journal") {
+    news = news.filter(n => !istZukunftsMeldung(n));
+  }
+
+  if (aktiverBereich === "termine") {
+    news = news.filter(n => istZukunftsMeldung(n));
+  }
 
   if (aktiveEbene === "bund" && aktiveQuelle !== "alle") {
     news = news.filter(n => ermittleQuelleTyp(n) === aktiveQuelle);
@@ -1728,6 +1837,10 @@ function baueJournalArtikel(n) {
   const gespeicherterArtikel = ersterText(n.journal_text, n.ki_journal_text);
 
   if (istGuterText(gespeicherterArtikel)) {
+    if (istZukuenftigerBundesratTop(n)) {
+      return baueZukunftsJournalArtikel(n, gespeicherterArtikel);
+    }
+
     return gespeicherterArtikel
       .split(/\n+/)
       .map(absatz => textAbsatz(absatz))
@@ -1997,7 +2110,12 @@ function renderJournalAnsicht(app, news) {
 
     const header = document.createElement("h3");
     header.className = "journal-day-header";
-    header.textContent = `${formatDatum(datum)} (${gruppen[datum].length})`;
+
+    if (istZukuenftigesDatum(datum)) {
+      header.textContent = `Am ${formatDatumLangMitWochentag(datum)} wird Folgendes passieren (${gruppen[datum].length})`;
+    } else {
+      header.textContent = `${formatDatum(datum)} (${gruppen[datum].length})`;
+    }
 
     gruppe.appendChild(header);
 
@@ -2104,9 +2222,36 @@ function renderNews() {
   app.innerHTML = "";
   aktualisiereLevelInfo();
 
+  if (aktiverBereich === "gesetzesmonitor") {
+    app.innerHTML = `
+      <div class="empty-state">
+        <h3>⚖️ Gesetzesmonitor</h3>
+        <p>
+          Dieser Bereich ist geplant.
+          Hier sollen politische Vorhaben später als Verlauf sichtbar werden:
+          von der ersten Erwähnung über Beratungen bis zum Beschluss und Inkrafttreten.
+        </p>
+      </div>
+    `;
+    return;
+  }
+
   const news = ermittleGefilterteNews();
 
   if (news.length === 0) {
+    if (aktiverBereich === "termine") {
+      app.innerHTML = `
+        <div class="empty-state">
+          <h3>📅 Keine politischen Termine gefunden.</h3>
+          <p>
+            Für die aktuelle Auswahl sind derzeit keine zukünftigen politischen Termine sichtbar.
+            Prüfe einen anderen Filter oder aktualisiere die Daten später erneut.
+          </p>
+        </div>
+      `;
+      return;
+    }
+
     zeigeLeerenZustand(app);
     return;
   }
@@ -2137,6 +2282,109 @@ function aktualisiereUpdateAnzeige(data) {
 
   const neuesteZeit = Math.max(...zeiten);
   updateInfo.textContent = "Letztes Datenupdate: " + formatUhrzeit(neuesteZeit);
+}
+
+
+function baueBundesratJournalHeadline(top, statusText) {
+  const titel = String(top.titel || "").trim();
+  if (!titel) {
+    return `Bundesrat behandelt TOP ${top.top_nummer || "-"}`;
+  }
+
+  const clean = titel
+    .replace(/^TOP\s+\d+\s*[:.-]?\s*/i, "")
+    .trim();
+
+  if (/^antrag (des|der) /i.test(clean)) {
+    const ausRawText = String(top.raw_text || "")
+      .split("\n")
+      .map(x => x.trim())
+      .find(x =>
+        x &&
+        !/^TOP\s/i.test(x) &&
+        !/^\d+[:\s]/.test(x) &&
+        !/^Länderbeteiligung$/i.test(x) &&
+        !/^Ausschusszuweisung$/i.test(x) &&
+        !/^Vorgang in DIP$/i.test(x) &&
+        !/^Link$/i.test(x) &&
+        !/^Drucksachen$/i.test(x)
+      );
+
+    if (ausRawText && ausRawText.length > 8) {
+      return kuerzePlainText(`Bundesrat berät: ${ausRawText}`, 110);
+    }
+  }
+
+  if (/gesetz|entwurf|änderung|versorgung|steuer|schutz|förderung/i.test(clean)) {
+    return kuerzePlainText(`Bundesrat berät über ${clean}`, 110);
+  }
+
+  if (/entschließung/i.test(clean)) {
+    return kuerzePlainText(`Bundesrat berät Entschließung: ${clean}`, 110);
+  }
+
+  return kuerzePlainText(`Bundesrat behandelt ${clean}`, 110);
+}
+
+function baueBundesratJournalTeaser(top, statusText) {
+  const buerger = String(top.ki_buergerauswirkung || "").trim();
+  const ziel = String(top.ki_ziel || "").trim();
+  const was = String(top.ki_was_passiert || "").trim();
+
+  if (istGuterText(buerger)) {
+    return kuerzePlainText(buerger, 190);
+  }
+
+  if (istGuterText(ziel)) {
+    return kuerzePlainText(ziel, 190);
+  }
+
+  if (istGuterText(was)) {
+    return kuerzePlainText(was, 190);
+  }
+
+  return `Der Bundesrat behandelt diesen Punkt in Sitzung ${top.sitzung || "-"} als TOP ${top.top_nummer || "-"}. Status: ${statusText}.`;
+}
+
+function baueBundesratJournalText(top, statusText) {
+  const abschnitte = [];
+
+  if (istGuterText(top.ki_was_passiert)) {
+    abschnitte.push(top.ki_was_passiert);
+  } else {
+    abschnitte.push(
+      `Der Bundesrat behandelt diesen Vorgang in Sitzung ${top.sitzung || "-"} als TOP ${top.top_nummer || "-"}. Der sichtbare Status lautet: ${statusText}.`
+    );
+  }
+
+  const inhalt = [
+    istGuterText(top.ki_warum) ? top.ki_warum : "",
+    istGuterText(top.ki_ziel) ? top.ki_ziel : "",
+    istGuterText(top.ki_betroffen) ? top.ki_betroffen : ""
+  ].filter(Boolean).join(" ");
+
+  if (inhalt) {
+    abschnitte.push(inhalt);
+  }
+
+  if (istGuterText(top.ki_buergerauswirkung)) {
+    abschnitte.push(top.ki_buergerauswirkung);
+  } else {
+    abschnitte.push(
+      "Für Bürgerinnen und Bürger ist aus den öffentlich verfügbaren PIQu-Daten noch keine unmittelbare Änderung sicher erkennbar. Es handelt sich zunächst um einen politischen Verfahrensschritt."
+    );
+  }
+
+  const naechsterSchritt = [
+    istGuterText(top.ki_status_erklaerung) ? top.ki_status_erklaerung : "",
+    istGuterText(top.ki_naechster_schritt) ? top.ki_naechster_schritt : ""
+  ].filter(Boolean).join(" ");
+
+  if (naechsterSchritt) {
+    abschnitte.push(naechsterSchritt);
+  }
+
+  return abschnitte.join("\n\n");
 }
 
 async function ladeBundesratTops() {
@@ -2224,17 +2472,36 @@ async function ladeBundesratTops() {
         ki_detail_checked_at: top.ki_detail_checked_at || null,
         ki_detail_error: top.ki_detail_error || "",
 
-        journal_headline: top.journal_headline || "",
-        journal_teaser: top.journal_teaser || "",
-        journal_text: top.journal_text || "",
-        journal_status: top.journal_status || "",
-        journal_confidence: top.journal_confidence || null,
-        journal_error: top.journal_error || "",
-        journal_updated_at: top.journal_updated_at || null,
+        // Bevorzugt werden die fertig gespeicherten Journalfelder aus Supabase.
+        // Nur wenn sie fehlen, baut PIQu einen vorsichtigen Fallback aus KI-/Basisfeldern.
+        journal_headline: top.journal_headline || baueBundesratJournalHeadline(top, statusText),
+        journal_teaser: top.journal_teaser || baueBundesratJournalTeaser(top, statusText),
+        journal_text: top.journal_text || baueBundesratJournalText(top, statusText),
+        journal_status: top.journal_status || top.ki_detail_status || top.ki_enriched_status || top.quality_status || "",
+        journal_confidence: top.journal_confidence || top.ki_detail_confidence || null,
+        journal_error: top.journal_error || top.ki_detail_error || "",
+        journal_updated_at: top.journal_updated_at || top.ki_detail_checked_at || top.ki_enriched_at || top.updated_at || null,
 
-        journal_sources: normalisiereArray(top.journal_sources),
-        journal_research_status: top.journal_research_status || "",
-        journal_research_note: top.journal_research_note || "",
+        journal_sources: normalisiereArray(top.journal_sources).length > 0
+          ? normalisiereArray(top.journal_sources)
+          : [
+              {
+                typ: "official_used_source",
+                url: top.top_url,
+                title: `Bundesrat · Sitzung ${top.sitzung} · TOP ${top.top_nummer}`,
+                grund: "Offizielle Bundesrat-Tagesordnung / TOP-Seite."
+              },
+              top.dip_url
+                ? {
+                    typ: "official_used_source",
+                    url: top.dip_url,
+                    title: "DIP · Vorgang",
+                    grund: "Parlamentarischer Vorgang zur Drucksache."
+                  }
+                : null
+            ].filter(Boolean),
+        journal_research_status: top.journal_research_status || "official_sources_used",
+        journal_research_note: top.journal_research_note || "Journaltext wurde aus den öffentlichen Bundesrat- und PIQu-KI-Feldern erzeugt.",
 
         ist_bundesrat_top: true
       };
@@ -2412,3 +2679,99 @@ document.getElementById("hide-quotes-toggle")?.addEventListener("change", event 
 });
 
 ladeNews();
+/* =========================
+   PIQU-BEREICHSNAVIGATION
+========================= */
+
+function bereichLabel(key) {
+  if (key === "journal") return "📰 Journal";
+  if (key === "termine") return "📅 Politische Termine";
+  if (key === "gesetzesmonitor") return "⚖️ Gesetzesmonitor";
+  return "📰 Journal";
+}
+
+function initialisiereBereichsNavigation() {
+  const toggle = document.getElementById("piqu-area-toggle");
+  const menu = document.getElementById("piqu-area-menu");
+  const current = document.getElementById("piqu-toggle-current");
+  const buttons = document.querySelectorAll(".piqu-area-btn");
+
+  if (!toggle || !menu || !current) return;
+
+  function aktualisiereAnzeige() {
+    const offen = !menu.classList.contains("hidden");
+
+    current.textContent = bereichLabel(aktiverBereich);
+
+    current.classList.remove(
+      "area-journal-text",
+      "area-termine-text",
+      "area-gesetzesmonitor-text"
+    );
+
+    if (aktiverBereich === "journal") {
+      current.classList.add("area-journal-text");
+    }
+
+    if (aktiverBereich === "termine") {
+      current.classList.add("area-termine-text");
+    }
+
+    if (aktiverBereich === "gesetzesmonitor") {
+      current.classList.add("area-gesetzesmonitor-text");
+    }
+
+    toggle.classList.toggle("area-open", offen);
+    toggle.setAttribute("aria-expanded", offen ? "true" : "false");
+
+    buttons.forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.area === aktiverBereich);
+    });
+  }
+
+  toggle.addEventListener("click", () => {
+    menu.classList.toggle("hidden");
+    aktualisiereAnzeige();
+  });
+
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      aktiverBereich = btn.dataset.area || "journal";
+
+      menu.classList.add("hidden");
+      aktualisiereAnzeige();
+
+      if (aktiverBereich === "journal") {
+        aktiveAnsicht = "journal";
+        renderNews();
+        return;
+      }
+
+      if (aktiverBereich === "termine") {
+        aktiveAnsicht = "journal";
+        renderNews();
+        return;
+      }
+
+      const app = document.getElementById("app");
+      if (!app) return;
+
+      if (aktiverBereich === "gesetzesmonitor") {
+        app.innerHTML = `
+          <div class="empty-state">
+            <h3>⚖️ Gesetzesmonitor</h3>
+            <p>
+              Dieser Bereich ist geplant.
+              Hier sollen politische Vorhaben später als Verlauf sichtbar werden:
+              von der ersten Erwähnung über Beratungen bis zum Beschluss und Inkrafttreten.
+            </p>
+          </div>
+        `;
+      }
+    });
+  });
+
+  aktualisiereAnzeige();
+}
+
+initialisiereBereichsNavigation();

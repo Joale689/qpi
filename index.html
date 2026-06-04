@@ -1,22 +1,47 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>PIQu – Politik aus offiziellen Quellen</title>
-  <meta name="description" content="PIQu sammelt politische Informationen aus offiziellen Quellen und stellt sie verständlich dar.">
-  <meta name="robots" content="index, follow">
-
-  <meta property="og:title" content="PIQu – Politik aus offiziellen Quellen">
-  <meta property="og:description" content="Politische Meldungen verständlich erklärt – mit Fakten und offiziellen Quellen.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://piqu.vercel.app">
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PIQu – Politik direkt aus der Quelle</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header id="header">
+  <div class="piqu-top-nav">
+  <button id="piqu-area-toggle" class="piqu-area-toggle" type="button" aria-expanded="false">
+    <span class="piqu-toggle-main">📖 Politik verfolgen</span>
+    <span class="piqu-toggle-separator">:</span>
+    <span id="piqu-toggle-current" class="piqu-toggle-current area-journal-text">📰 Journal</span>
+  </button>
+
+  <div id="piqu-area-menu" class="piqu-area-menu hidden">
+    <button class="piqu-area-btn active" type="button" data-area="journal">
+      <span class="piqu-area-icon">📰</span>
+      <span class="piqu-area-text">
+        <strong>Journal</strong>
+        <span>Was ist passiert?</span>
+      </span>
+    </button>
+
+    <button class="piqu-area-btn" type="button" data-area="termine">
+      <span class="piqu-area-icon">📅</span>
+      <span class="piqu-area-text">
+        <strong>Politische Termine</strong>
+        <span>Was steht bevor?</span>
+      </span>
+    </button>
+
+    <button class="piqu-area-btn" type="button" data-area="gesetzesmonitor">
+      <span class="piqu-area-icon">⚖️</span>
+      <span class="piqu-area-text">
+        <strong>Gesetzesmonitor</strong>
+        <span>Wo steht ein Vorhaben?</span>
+      </span>
+    </button>
+  </div>
+</div>
+
   <div class="hero-compact">
     <div class="hero-compact-main">
       <h1>
@@ -168,7 +193,6 @@
   </div>
 </footer>
 
-
 <div id="page-jump-buttons" aria-label="Seitennavigation">
   <button id="top-jump-btn" class="page-jump-btn" type="button" aria-label="Zur Startseite springen">
     ↑ Start
@@ -185,7 +209,6 @@
     <div id="modal-content"></div>
   </div>
 </div>
-
   <script src="script.js"></script>
 </body>
 </html>
