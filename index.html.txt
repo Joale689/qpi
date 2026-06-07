@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PIQu zeigt politische Meldungen aus offiziellen Quellen verständlich erklärt.">
+  <meta name="robots" content="index, follow">
+  <title>PIQu – Politik aus offiziellen Quellen</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header id="header">
+  <div class="piqu-top-nav">
+    <button id="piqu-area-toggle" class="piqu-area-toggle" type="button" aria-expanded="false">
+      <span class="piqu-toggle-main">📖 Politik verfolgen</span>
+      <span class="piqu-toggle-separator">:</span>
+      <span id="piqu-toggle-current" class="piqu-toggle-current area-journal-text">📰 Journal</span>
+    </button>
+
+    <div id="piqu-area-menu" class="piqu-area-menu hidden">
+      <button class="piqu-area-btn active" type="button" data-area="journal">
+        <span class="piqu-area-icon">📰</span>
+        <span class="piqu-area-text">
+          <strong>Journal</strong>
+          <span>Was ist passiert?</span>
+        </span>
+      </button>
+
+      <button class="piqu-area-btn" type="button" data-area="termine">
+        <span class="piqu-area-icon">📅</span>
+        <span class="piqu-area-text">
+          <strong>Politische Termine</strong>
+          <span>Was steht bevor?</span>
+        </span>
+      </button>
+
+      <button class="piqu-area-btn" type="button" data-area="gesetzesmonitor">
+        <span class="piqu-area-icon">⚖️</span>
+        <span class="piqu-area-text">
+          <strong>Gesetzesmonitor</strong>
+          <span>Wo steht ein Vorhaben?</span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div class="hero-compact">
+    <div class="hero-compact-main">
+      <h1>
+        <span class="qpi-q">PI</span><span class="qpi-pi">Qu</span>
+      </h1>
+
+      <p class="subtitle">
+        Politik aus offiziellen Quellen – verständlich erklärt.
+      </p>
+
+      <p class="hero-short-text">
+        PIQu zeigt politische Meldungen als lesbaren Journaltext.
+        Fakten und offizielle Quellen bleiben direkt am Bericht prüfbar.
+      </p>
+
+      <div class="hero-update-row">
+        <div id="update-info">Letztes Datenupdate wird geladen...</div>
+
+        <button id="refresh-btn" class="refresh-inline-btn" type="button">
+          Meldungen aktualisieren
+        </button>
+      </div>
+    </div>
+
+    <div class="paper-note paper-note-compact">
+      <div class="tape"></div>
+
+      <div class="hero-info-buttons hero-info-groups">
+        <div class="hero-info-group hero-info-group-main">
+          <button class="info-btn info-btn-main" type="button" data-info="qpi">Wofür ist PIQu da?</button>
+          <button class="info-btn info-btn-main" type="button" data-info="ki">KI-Hinweis</button>
+          <button class="info-btn info-btn-main" type="button" data-info="quellen">Quellen</button>
+        </div>
+
+        <div class="hero-info-group hero-info-group-legal">
+          <button class="info-btn info-btn-legal" type="button" data-info="haftung">Haftung &amp; Hinweise</button>
+        </div>
+
+        <div class="hero-info-group hero-info-group-project">
+          <button class="info-btn info-btn-project info-btn-roadmap" type="button" data-info="roadmap">Demnächst</button>
+          <button class="info-btn info-btn-project" type="button" data-info="spenden">Unterstützung</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div id="meldung-bereich"></div>
+
+<div id="layout" class="layout-compact">
+  <main id="main-content">
+    <section id="bund-source-panel" class="qpi-control-panel compact-controls">
+      <nav id="side-nav" class="level-tabs">
+        <button class="nav-btn active" type="button" data-ebene="bund">
+          Bund
+          <span>aktiv</span>
+        </button>
+
+        <button class="nav-btn disabled" type="button" data-ebene="land">
+          Land
+          <span>in Vorbereitung</span>
+        </button>
+
+        <button class="nav-btn disabled" type="button" data-ebene="landkreis">
+          Landkreis
+          <span>in Vorbereitung</span>
+        </button>
+
+        <button class="nav-btn disabled" type="button" data-ebene="gemeinde">
+          Gemeinde
+          <span>in Vorbereitung</span>
+        </button>
+      </nav>
+
+      <section id="level-info" class="level-info-compact qpi-hidden-safe"></section>
+
+      <div class="filter-grid filter-grid-simple">
+        <div class="control-block qpi-hidden-safe">
+          <h3>Quelle</h3>
+          <div id="source-filters"></div>
+        </div>
+
+        <div class="control-block">
+          <h3>Art der Meldung</h3>
+          <div id="filters"></div>
+        </div>
+
+        <label class="quote-toggle compact-quote-toggle">
+          <input type="checkbox" id="hide-quotes-toggle">
+          Zitate / Statements ausblenden
+        </label>
+      </div>
+    </section>
+
+    <section id="app"></section>
+  </main>
+</div>
+
+<section id="roadmap">
+  <h2>Was kommt demnächst?</h2>
+
+  <div class="roadmap-grid">
+    <div class="roadmap-card done">
+      <h3>Bereits aktiv</h3>
+      <ul>
+        <li>Bundestag, Bundesregierung und Bundesrat als Bundesquellen</li>
+        <li>automatische Datenaktualisierung</li>
+        <li>Journalansicht mit Fakten- und Quellenreitern</li>
+        <li>Status-, Quellen- und Zitatfilter</li>
+        <li>geprüfte öffentliche Bundesrat-Ansicht</li>
+      </ul>
+    </div>
+
+    <div class="roadmap-card progress">
+      <h3>In Arbeit</h3>
+      <ul>
+        <li>Website-Darstellung weiter vereinfachen</li>
+        <li>Berichtskarten optisch verbessern</li>
+        <li>KI-Erklärungen kontrolliert weiter verbessern</li>
+        <li>Impressum, Datenschutz, Haftung und AGB finalisieren</li>
+      </ul>
+    </div>
+
+    <div class="roadmap-card later">
+      <h3>Später geplant</h3>
+      <ul>
+        <li>Bundesländer, Landkreise und Gemeinden</li>
+        <li>Teilen-Funktion / Kurz-Karten</li>
+        <li>Einstellungen für Standardansicht</li>
+        <li>freiwilliger Unterstützungsbereich</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer id="footer">
+  <div class="footer-brand">
+    <strong>PIQu</strong><br>
+    Politik direkt aus der Quelle &mdash; verständlich erklärt
+  </div>
+
+  <div class="footer-links">
+    <button class="footer-link" type="button" data-info="impressum">Impressum</button>
+    <button class="footer-link" type="button" data-info="datenschutz">Datenschutz</button>
+    <button class="footer-link" type="button" data-info="haftung">Haftung &amp; Hinweise</button>
+    <button class="footer-link" type="button" data-info="agb">Nutzungsbedingungen / AGB</button>
+    <button class="footer-link" type="button" data-info="kontakt">Kontakt</button>
+    <button class="footer-link" type="button" data-info="quellen">Quellen</button>
+  </div>
+</footer>
+
+<div id="page-jump-buttons" aria-label="Seitennavigation">
+  <button id="top-jump-btn" class="page-jump-btn" type="button" aria-label="Zur Startseite springen">
+    ↑ Start
+  </button>
+
+  <button id="footer-jump-btn" class="page-jump-btn" type="button" aria-label="Zur Fußzeile springen">
+    Info &amp; Rechtliches ↓
+  </button>
+</div>
+
+<div id="modal-layer" class="hidden">
+  <div id="modal-card">
+    <button id="modal-close" type="button">×</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+  <script src="./script.js" defer></script>
+</body>
+</html>
