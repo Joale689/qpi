@@ -3,19 +3,24 @@ const SUPABASE_KEY = "sb_publishable_dGW_UHdhGkctVaowDyVUvQ_dscIaM0i";
 
 // Sobald du einen echten Unterstützungslink hast, hier eintragen.
 // Beispiel später: const DONATION_URL = "https://...";
-const DONATION_URL = "";
+const DONATION_URL = "https://paypal.me/piqunews";
+const FEHLER_EMAIL = "kontakt.piqu@gmail.com";
 
 let alleNews = [];
 let monitorVorhaben = [];
 let monitorEreignisse = [];
+let monitorJournalLinks = [];
 let aktiverFilter = "alle";
 let aktiveEbene = "bund";
 let aktiveQuelle = "alle";
 let zitateAusblenden = false;
 let aktiveAnsicht = "journal";
 let aktiverBereich = "journal";
+let aktiverMonitorBereich = "entwicklung";
 let zielMeldungId = null;
 let zielJournalId = null;
+let zielJournalIdAlternativen = [];
+let startKurzinfo = null;
 
 const filterListe = [
   { key: "alle", label: "Alle" },
@@ -46,7 +51,8 @@ const infoTexte = {
 
     <p>
       Ziel ist eine ruhige Orientierung:
-      Was ist passiert, was bedeutet es ungefähr und welche offizielle Quelle belegt es?
+      Was ist passiert? Worum geht es? Welche Quelle belegt es?
+      Und wo steht ein politisches oder gesetzgeberisches Vorhaben aktuell?
     </p>
 
     <h3>Die drei Grundprinzipien</h3>
@@ -54,38 +60,48 @@ const infoTexte = {
       <li>
         <b>Offizielle Quellen</b><br>
         PIQu arbeitet mit offiziellen politischen Quellen wie Bundestag, Bundesrat,
-        Bundesregierung und später weiteren amtlichen Ebenen.
+        Bundesregierung, DIP/Bundestag und Bundesgesetzblatt/recht.bund.de.
       </li>
       <li>
         <b>Verständliche Erklärung</b><br>
-        PIQu übersetzt amtliche Sprache in normale Sprache, ohne politische Meinung zu erzeugen.
+        PIQu übersetzt amtliche Sprache in normale Sprache,
+        ohne daraus eine politische Bewertung zu machen.
       </li>
       <li>
         <b>Original bleibt sichtbar</b><br>
-        Jede Meldung soll zur Originalquelle führen, damit Nutzerinnen und Nutzer selbst nachprüfen können.
+        Quellen, Fakten und Verfahrensstand bleiben sichtbar,
+        damit Nutzerinnen und Nutzer selbst nachprüfen können.
       </li>
     </ol>
 
     <p>
       PIQu bewertet keine Parteien, keine Personen und keine politischen Positionen.
-      Ausführliche Hinweise zu Haftung, Datenschutz und Nutzung stehen in den entsprechenden Bereichen unten auf der Seite.
+      Die Plattform soll helfen, politische Vorgänge besser zu verfolgen,
+      ohne Meinung, Empörung oder künstliche Zuspitzung in den Vordergrund zu stellen.
     </p>
 
     <p>
-      Ziel ist ein Gegenpol zu Fakenews, Ragebait und überdrehter Empörung.
+      PIQu ist kein amtliches Angebot. Maßgeblich bleiben immer die verlinkten Originalquellen.
     </p>
   `,
+
+
 
   ki: `
     <h2>KI-Hinweis</h2>
 
     <p>
       PIQu nutzt KI unterstützend, um offizielle politische Meldungen verständlicher zu erklären.
-      Die KI soll keine eigene Meinung hinzufügen und keine politische Bewertung erzeugen.
     </p>
 
     <p>
-      Die Erklärungen sollen helfen, typische Fragen schneller zu verstehen:
+      Die KI soll keine eigene Meinung hinzufügen, keine politische Bewertung erzeugen
+      und keine Parteien oder Personen einordnen.
+      Sie hilft vor allem dabei, amtliche Texte kürzer, verständlicher und strukturierter darzustellen.
+    </p>
+
+    <p>
+      Die Erklärungen sollen typische Fragen schneller beantworten:
       Was ist passiert? Warum ist es relevant? Wen betrifft es? Was könnte als Nächstes folgen?
     </p>
 
@@ -96,40 +112,45 @@ const infoTexte = {
 
     <p>
       KI-Erklärungen können trotzdem Fehler enthalten.
-      Deshalb bleiben Originalquellen, Faktenbereich und Quellenbereich bei jeder Meldung sichtbar.
+      Deshalb bleiben Originalquellen, Faktenbereich und Quellenbereich sichtbar.
     </p>
   `,
+
+
 
   quellen: `
     <h2>Quellen & Transparenz</h2>
 
     <p>
       PIQu nutzt offizielle Quellen, zum Beispiel Bundestag, Bundesrat,
-      Bundesregierung und später offizielle Stellen der Länder, Landkreise und Gemeinden.
+      Bundesregierung, DIP/Bundestag und Bundesgesetzblatt/recht.bund.de.
     </p>
 
     <p>
-      In der aktuellen Alpha sind Bundestag, Bundesrat und Bundesregierung im Bundesbereich angebunden.
-      Jede Meldung soll direkt zum Original oder zu den genutzten offiziellen Quellen führen.
+      In der aktuellen Beta liegt der Schwerpunkt auf Bundespolitik und dem Gesetzesmonitor.
+      Journalmeldungen, politische Termine und Monitor-Einträge werden aus offiziellen Quellen geladen,
+      technisch verarbeitet und verständlicher dargestellt.
     </p>
 
     <h3>Was PIQu mit Quellen macht</h3>
     <p>
       PIQu übernimmt Daten aus offiziellen Quellen, ordnet sie technisch ein
       und erstellt daraus verständlichere Erklärungen.
-      Wenn zusätzliche Quellen genutzt werden, sollen sie im Quellenbereich sichtbar sein.
+    </p>
+
+    <p>
+      Im Gesetzesmonitor werden Vorhaben zusätzlich über offizielle Verfahrensquellen verfolgt,
+      zum Beispiel über Bundesratsdrucksachen, DIP-Vorgänge und Veröffentlichungen im Bundesgesetzblatt.
     </p>
 
     <p>
       Die Quellenansicht soll nachvollziehbar machen, woher eine Meldung stammt
       und welche Grundlage für die Erklärung verwendet wurde.
-    </p>
-
-    <p>
-      Ausführliche Hinweise zu externen Links und Verantwortung externer Anbieter
-      stehen im Bereich „Haftung & Hinweise“.
+      Maßgeblich bleiben immer die Originalquellen.
     </p>
   `,
+
+
 
   haftung: `
     <h2>Haftung & Nutzungshinweis</h2>
@@ -151,16 +172,11 @@ const infoTexte = {
 
     <p>
       PIQu wird vorerst über Vercel veröffentlicht.
-    </p>
-
-    <p>
-      <b>Wichtig:</b> Nutzerinnen und Nutzer sollten prüfen,
+      Nutzerinnen und Nutzer sollten prüfen,
       ob sie sich tatsächlich auf dieser offiziellen PIQu-Adresse befinden.
     </p>
 
     <p>
-      Nutzerinnen und Nutzer sind selbst dafür verantwortlich zu prüfen,
-      ob sie sich tatsächlich auf der offiziellen PIQu-Seite befinden.
       PIQu übernimmt keine Haftung für Schäden, Irrtümer oder Datenverluste,
       die dadurch entstehen, dass jemand eine gefälschte Webseite,
       eine Phishing-Seite, eine manipulierte Weiterleitung oder eine fremde Kopie von PIQu nutzt.
@@ -189,49 +205,32 @@ const infoTexte = {
     <p>
       Die technische Verarbeitung und KI-gestützte Erklärung erfolgen mit Sorgfalt,
       können aber ebenfalls Fehler enthalten.
-      PIQu arbeitet deshalb mit Quellenhinweisen, Originalverlinkungen,
-      Statusangaben und Sicherheitsmarkierungen.
     </p>
 
     <h3>Externe Links</h3>
     <p>
-      PIQu verlinkt nach Möglichkeit auf offizielle Quellen, zum Beispiel Seiten von Bundestag,
-      Bundesrat, Bundesregierung oder anderen amtlichen Stellen.
+      PIQu verlinkt nach Möglichkeit auf offizielle Quellen.
       Beim Anklicken externer Links verlassen Nutzerinnen und Nutzer die PIQu-Seite.
-    </p>
-
-    <p>
       Für Inhalte, Sicherheit, Verfügbarkeit, spätere Änderungen oder technische Probleme
       externer Webseiten ist der jeweilige Anbieter verantwortlich.
-      PIQu kontrolliert externe Webseiten nicht dauerhaft und kann nicht garantieren,
-      dass verlinkte Seiten jederzeit unverändert, fehlerfrei oder sicher erreichbar sind.
-    </p>
-
-    <p>
-      Nutzerinnen und Nutzer sollten vor der Eingabe persönlicher Daten,
-      vor Downloads oder vor wichtigen Entscheidungen immer selbst prüfen,
-      ob sie sich auf einer echten offiziellen Zielseite befinden.
-      Besonders wichtig ist die Prüfung der Internetadresse im Browser.
     </p>
 
     <h3>Nutzung auf eigene Verantwortung</h3>
     <p>
       Nutzerinnen und Nutzer sollten wichtige Informationen immer anhand der Originalquelle prüfen,
       besonders wenn sie daraus rechtliche, finanzielle, berufliche oder sonstige wichtige Entscheidungen ableiten möchten.
-      Bei Bedarf sollte fachkundiger Rat eingeholt werden.
-    </p>
-
-    <p>
       Die Nutzung von PIQu erfolgt auf eigene Verantwortung.
     </p>
   `,
+
+
 
   agb: `
     <h2>Nutzungsbedingungen / AGB</h2>
 
     <p>
       Diese Nutzungsbedingungen gelten für die Nutzung der PIQu-Webplattform.
-      PIQu befindet sich derzeit in einer Alpha-Phase.
+      PIQu befindet sich derzeit in einer Beta-Phase.
       Funktionen, Darstellung, Datenbestand und Inhalte können sich ändern.
     </p>
 
@@ -251,17 +250,11 @@ const infoTexte = {
     </p>
 
     <p>
-      PIQu wird vorerst über Vercel veröffentlicht.
-    </p>
-
-    <p>
-      <b>Wichtig:</b> Nutzerinnen und Nutzer sollten prüfen,
-      ob sie sich tatsächlich auf dieser offiziellen PIQu-Adresse befinden.
-    </p>
-
-    <p>
       Nutzerinnen und Nutzer sind selbst dafür verantwortlich zu prüfen,
       ob sie sich auf der offiziellen PIQu-Seite befinden.
+    </p>
+
+    <p>
       PIQu übernimmt keine Haftung für Schäden, Irrtümer, Datenverluste oder sonstige Nachteile,
       die durch gefälschte Webseiten, Phishing-Seiten, manipulierte Weiterleitungen,
       fremde Kopien oder missbräuchliche Nachahmungen von PIQu entstehen.
@@ -290,41 +283,33 @@ const infoTexte = {
 
     <h3>6. Externe Links</h3>
     <p>
-      PIQu verlinkt nach Möglichkeit auf offizielle Quellen, zum Beispiel Webseiten von Bundestag,
-      Bundesrat, Bundesregierung oder anderen amtlichen Stellen.
+      PIQu verlinkt nach Möglichkeit auf offizielle Quellen.
       Beim Anklicken solcher Links verlassen Nutzerinnen und Nutzer die PIQu-Webplattform.
-    </p>
-
-    <p>
       Für Inhalte, Sicherheit, Verfügbarkeit, spätere Änderungen oder technische Probleme
       externer Webseiten ist der jeweilige Anbieter verantwortlich.
-      PIQu macht sich externe Inhalte nicht automatisch zu eigen und kontrolliert externe Seiten nicht dauerhaft.
     </p>
 
+    <h3>7. Hinweise auf Fehler oder problematische Inhalte</h3>
     <p>
-      Nutzerinnen und Nutzer sind selbst dafür verantwortlich,
-      die Adresse der Zielseite zu prüfen, bevor sie dort Daten eingeben,
-      Dokumente herunterladen oder Entscheidungen auf Grundlage der dortigen Inhalte treffen.
-    </p>
-
-    <h3>7. Hinweise auf problematische Links oder Inhalte</h3>
-    <p>
-      Wenn Nutzerinnen oder Nutzer fehlerhafte, veraltete, problematische oder verdächtige Links entdecken,
+      Wenn Nutzerinnen oder Nutzer fehlerhafte, veraltete, problematische oder verdächtige Inhalte oder Links entdecken,
       können sie PIQu darüber informieren.
-      PIQu wird entsprechende Hinweise prüfen und betroffene Links oder Inhalte bei Bedarf korrigieren,
+      PIQu wird entsprechende Hinweise prüfen und betroffene Inhalte bei Bedarf korrigieren,
       entfernen oder kennzeichnen.
     </p>
 
     <h3>8. Änderungen</h3>
     <p>
-      PIQu kann diese Nutzungsbedingungen anpassen, wenn sich Funktionen,
-      rechtliche Anforderungen oder der Betrieb der Plattform ändern.
+      PIQu kann diese Nutzungsbedingungen anpassen,
+      wenn sich Funktionen, rechtliche Anforderungen oder der Betrieb der Plattform ändern.
     </p>
 
     <p>
-      <b>Hinweis:</b> Diese Nutzungsbedingungen gelten für die erste PIQu-Alpha auf Vercel unter https://piqu.vercel.app. Die Kontakt-E-Mail und die Anbieterangaben sind im Impressum angegeben.
+      <b>Hinweis:</b> Diese Nutzungsbedingungen gelten für die PIQu-Beta auf Vercel unter https://piqu.vercel.app.
+      Die Kontakt-E-Mail und die Anbieterangaben stehen im Impressum.
     </p>
   `,
+
+
 
   impressum: `
     <h2>Impressum</h2>
@@ -384,42 +369,48 @@ const infoTexte = {
       Ziel ist, so wenig personenbezogene Daten wie möglich zu verarbeiten.
     </p>
 
-    <h3>Aktueller Alpha-Stand</h3>
+    <h3>Aktueller Beta-Stand</h3>
     <p>
-      In der aktuellen Alpha werden politische Informationen aus offiziellen Quellen angezeigt.
+      In der aktuellen Beta werden politische Informationen aus offiziellen Quellen angezeigt.
       Es sind keine Nutzerkonten, keine Kommentarfunktion, kein Newsletter,
       kein Kontaktformular, kein Tracking und keine Analysewerkzeuge vorgesehen.
     </p>
 
+    <p>
+      Die Funktion „Fehler melden“ öffnet lediglich eine vorbereitete E-Mail
+      im E-Mail-Programm der Nutzerin oder des Nutzers.
+      PIQu speichert dadurch kein Formular und legt kein Nutzerkonto an.
+    </p>
+
     <h3>Hosting über Vercel</h3>
     <p>
-      PIQu soll vorerst über Vercel veröffentlicht werden.
+      PIQu wird vorerst über Vercel veröffentlicht.
       Beim Aufruf der Website können technisch notwendige Zugriffsdaten verarbeitet werden,
       zum Beispiel IP-Adresse, Datum und Uhrzeit des Zugriffs, Browserinformationen,
       Geräteinformationen, angeforderte Dateien und Server-Logdaten.
     </p>
 
     <p>
-      Diese Verarbeitung ist technisch erforderlich, damit die Website ausgeliefert,
-      geschützt und betrieben werden kann.
+      Diese Verarbeitung ist technisch erforderlich,
+      damit die Website ausgeliefert, geschützt und betrieben werden kann.
       Die offizielle PIQu-Adresse lautet: https://piqu.vercel.app.
     </p>
 
     <h3>Datenquelle und Backend über Supabase</h3>
     <p>
-      PIQu nutzt Supabase zur Speicherung und Bereitstellung der politischen Meldungen.
+      PIQu nutzt Supabase zur Speicherung und Bereitstellung politischer Meldungen,
+      Termine und Monitor-Daten.
       In Supabase werden nach aktuellem Stand keine Nutzerkonten, keine Kommentare
       und keine von Besucherinnen und Besuchern eingegebenen personenbezogenen Daten gespeichert.
     </p>
 
     <p>
-      Die öffentlich sichtbaren Inhalte stammen aus politischen Quellen und aus der technischen Verarbeitung dieser Quellen.
       Beim Abruf der Meldungen können technisch notwendige Verbindungsdaten an Supabase übertragen werden.
     </p>
 
     <h3>Keine Cookies, kein Tracking, keine Nutzerprofile</h3>
     <p>
-      PIQu setzt in dieser Alpha nach aktuellem Stand keine Tracking-Cookies,
+      PIQu setzt in dieser Beta nach aktuellem Stand keine Tracking-Cookies,
       keine Werbe-Cookies, keine Analytics-Werkzeuge und keine Nutzerprofile ein.
       Es gibt keine Anmeldung und keine personalisierte Auswertung des Nutzungsverhaltens.
     </p>
@@ -436,6 +427,20 @@ const infoTexte = {
       sofern dies für die Anfrage nicht erforderlich ist.
     </p>
 
+    <h3>Freiwillige Unterstützung über PayPal</h3>
+    <p>
+      PIQu bietet einen freiwilligen Unterstützungslink über PayPal.Me an.
+      Beim Anklicken des Unterstützungslinks verlassen Nutzerinnen und Nutzer die PIQu-Seite
+      und werden zu PayPal weitergeleitet.
+      Für die Zahlungsabwicklung ist PayPal verantwortlich.
+    </p>
+
+    <p>
+      Dabei gelten zusätzlich die Datenschutz- und Nutzungsbedingungen von PayPal.
+      PIQu erhält keine Zahlungsdaten direkt über die Website.
+      Eine Unterstützung ist freiwillig und ohne Gegenleistung.
+    </p>
+
     <h3>Externe Links</h3>
     <p>
       PIQu verlinkt auf externe Webseiten, insbesondere auf offizielle politische Quellen.
@@ -450,18 +455,19 @@ const infoTexte = {
       weil PIQu keine Nutzerkonten, Kommentare oder Kontaktformulare bereitstellt.
     </p>
 
-    <h3>Hinweis zum Stand dieser Datenschutzerklärung</h3>
     <p>
-      Diese Datenschutzerklärung gilt für die erste PIQu-Alpha auf Vercel unter https://piqu.vercel.app. PIQu verwendet nach aktuellem Stand keine Nutzerkonten, kein Kontaktformular, kein Tracking und keine Analysewerkzeuge. Die Kontakt-E-Mail und die Anbieterangaben sind im Impressum angegeben.
+      <b>Hinweis:</b> Diese Datenschutzerklärung gilt für die PIQu-Beta auf Vercel unter https://piqu.vercel.app.
+      Die Kontakt-E-Mail und die Anbieterangaben stehen im Impressum.
     </p>
   `,
+
+
 
   kontakt: `
     <h2>Kontakt</h2>
 
     <p>
-      PIQu soll für Hinweise, Fehler, Quellenvorschläge und Rückfragen
-      zunächst ausschließlich per E-Mail erreichbar sein.
+      PIQu ist für Hinweise, Fehler, Quellenvorschläge und Rückfragen per E-Mail erreichbar.
     </p>
 
     <p>
@@ -479,18 +485,20 @@ const infoTexte = {
     </p>
   `,
 
+
+
   spenden: `
     <h2>PIQu freiwillig unterstützen</h2>
 
     <p>
       PIQu soll kostenlos nutzbar bleiben.
-      Gleichzeitig entstehen bereits jetzt laufende Kosten,
+      Gleichzeitig entstehen laufende Kosten,
       zum Beispiel für technische Dienste und KI-gestützte Verarbeitung.
     </p>
 
     <p>
-      Wer PIQu sinnvoll findet, kann das Projekt später freiwillig unterstützen.
-      Die Unterstützung soll beim Betrieb und bei der Weiterentwicklung helfen.
+      Wer PIQu sinnvoll findet, kann das Projekt freiwillig unterstützen.
+      Die Unterstützung hilft beim Betrieb und bei der Weiterentwicklung.
     </p>
 
     <div class="support-box">
@@ -509,7 +517,7 @@ const infoTexte = {
           `
           : `
             <button class="support-button support-button-disabled" type="button" disabled>
-              Unterstützung bald möglich
+              Unterstützung wird vorbereitet
             </button>
           `
       }
@@ -527,42 +535,52 @@ const infoTexte = {
     </p>
   `,
 
+
+
   roadmap: `
-    <h2>Was kommt demnächst?</h2>
+    <h2>Stand der Beta & Ausblick</h2>
 
     <div class="roadmap-grid roadmap-modal-grid">
       <div class="roadmap-card done">
-        <h3>Bereits aktiv</h3>
+        <h3>Bereits aktiv in der Beta</h3>
         <ul>
-          <li>Bundestag, Bundesregierung und Bundesrat als Bundesquellen</li>
-          <li>automatische Datenaktualisierung</li>
-          <li>Journalansicht mit Fakten- und Quellenreitern</li>
-          <li>Status-, Quellen- und Zitatfilter</li>
-          <li>geprüfte öffentliche Bundesrat-Ansicht</li>
+          <li>Journal mit offiziellen Bundesquellen</li>
+          <li>politische Termine im Bundesbereich</li>
+          <li>Gesetzesmonitor mit Entwicklung, Fertig / In Kraft und Archiv</li>
+          <li>Bundestag/DIP, Bundesrat und BGBl/recht.bund.de als Monitor-Quellen</li>
+          <li>verständliche Erklärtexte mit Fakten- und Quellenbereich</li>
+          <li>Datumsbalken für Tagesmeldungen</li>
+          <li>Fehler melden per vorbereiteter E-Mail</li>
+          <li>freiwilliger Unterstützungsbereich</li>
         </ul>
       </div>
 
       <div class="roadmap-card progress">
-        <h3>In Arbeit</h3>
+        <h3>Wird laufend verbessert</h3>
         <ul>
-          <li>Website-Darstellung weiter vereinfachen</li>
-          <li>Berichtskarten optisch verbessern</li>
-          <li>KI-Erklärungen kontrolliert weiter verbessern</li>
-          <li>Impressum, Datenschutz, Haftung und AGB finalisieren</li>
+          <li>Datenqualität und automatische Zuordnung</li>
+          <li>verständlichere Erklärtexte</li>
+          <li>Quellenprüfung und Statuslogik im Gesetzesmonitor</li>
+          <li>Admin-Kontrolle im Hintergrund</li>
+          <li>Bedienkomfort auf Handy und Desktop</li>
+          <li>rechtliche Hinweise und Transparenztexte</li>
         </ul>
       </div>
 
       <div class="roadmap-card later">
         <h3>Später geplant</h3>
         <ul>
-          <li>Bundesländer, Landkreise und Gemeinden</li>
+          <li>Bundesländer</li>
+          <li>Landkreise</li>
+          <li>Gemeinden</li>
           <li>Teilen-Funktion / Kurz-Karten</li>
-          <li>Einstellungen für Standardansicht</li>
-          <li>freiwilliger Unterstützungsbereich</li>
+          <li>persönliche Einstellungen für Standardansicht</li>
         </ul>
       </div>
     </div>
   `
+
+
 };
 
 /* =========================
@@ -1587,6 +1605,7 @@ function baueAnsichtsUmschalter() {
       aktiveAnsicht = view;
       zielMeldungId = null;
       zielJournalId = null;
+      zielJournalIdAlternativen = [];
       baueAnsichtsUmschalter();
       renderNews();
     };
@@ -1756,7 +1775,7 @@ function zeigeLeerenZustand(app) {
         <h3>Diese Ebene ist vorbereitet.</h3>
         <p>
           Aktuell verarbeitet PIQu noch keine Meldungen für diese Ebene.
-          Der Fokus der Alpha liegt zuerst auf dem Bundesbereich.
+          Der Fokus der Beta liegt zuerst auf dem Bundesbereich.
         </p>
       </div>
     `;
@@ -1792,6 +1811,55 @@ function istZukunftsMeldung(n) {
   return istZukuenftigesDatum(n.datum);
 }
 
+
+function journalZielIdsAktiv() {
+  return [zielJournalId, ...zielJournalIdAlternativen]
+    .map(x => String(x || "").trim())
+    .filter(Boolean);
+}
+
+function journalMeldungPasstZuZiel(n, zielIdsRaw) {
+  const zielIds = (zielIdsRaw || [])
+    .map(x => String(x || "").trim())
+    .filter(Boolean);
+
+  if (!n || zielIds.length === 0) return false;
+
+  const kandidaten = [
+    n.id,
+    n.title,
+    n.news_id,
+    n.bundesrat_top_id,
+    n.top_id,
+    n.top_nummer,
+    n.bundesrat_top_id ? `bundesrat-db-${n.bundesrat_top_id}` : "",
+    n.top_id ? `bundesrat-db-${n.top_id}` : "",
+    n.top_nummer ? `bundesrat-${n.sitzung || ""}-${n.top_nummer}` : ""
+  ]
+    .map(x => String(x || "").trim())
+    .filter(Boolean);
+
+  return zielIds.some(zielId => kandidaten.includes(zielId));
+}
+
+function ergaenzeZielmeldungWennGefiltert(news) {
+  const zielIds = journalZielIdsAktiv();
+  if (zielIds.length === 0) return news;
+
+  const istSchonDrin = news.some(n => journalMeldungPasstZuZiel(n, zielIds));
+  if (istSchonDrin) return news;
+
+  const ziel = alleNews.find(n =>
+    n &&
+    n.ebene === aktiveEbene &&
+    journalMeldungPasstZuZiel(n, zielIds)
+  );
+
+  if (!ziel) return news;
+
+  return [ziel, ...news];
+}
+
 function ermittleGefilterteNews() {
   let news = alleNews.filter(n =>
     istInnerhalb30Tage(n.datum) &&
@@ -1816,6 +1884,11 @@ function ermittleGefilterteNews() {
   if (aktiverFilter !== "alle") {
     news = news.filter(n => n.status === aktiverFilter);
   }
+
+  // Wenn der Gesetzesmonitor gezielt zu einer verknüpften Journalmeldung springt,
+  // muss diese Meldung auch dann mitgerendert werden, wenn sie durch die normale
+  // 30-Tage- oder Bereichsfilterung gerade nicht in der Liste wäre.
+  news = ergaenzeZielmeldungWennGefiltert(news);
 
   return sortiereNewsListe(news);
 }
@@ -2140,17 +2213,37 @@ function renderJournalAnsicht(app, news) {
     app.appendChild(gruppe);
   });
 
-  if (zielJournalId) {
-    setTimeout(() => {
-      const ziel = document.getElementById(`journal-${safeDomId(zielJournalId)}`);
+  if (zielJournalId || zielJournalIdAlternativen.length > 0) {
+    const zielIds = [zielJournalId, ...zielJournalIdAlternativen]
+      .map(x => String(x || "").trim())
+      .filter(Boolean);
+
+    const findeUndOeffneZiel = (versuch = 0) => {
+      let ziel = null;
+
+      for (const zielId of zielIds) {
+        ziel = document.getElementById(`journal-${safeDomId(zielId)}`);
+        if (ziel) break;
+      }
+
+      if (!ziel && versuch < 8) {
+        setTimeout(() => findeUndOeffneZiel(versuch + 1), 120);
+        return;
+      }
 
       if (ziel) {
-        ziel.scrollIntoView({
-          behavior: "smooth",
-          block: "center"
+        ziel.classList.add("journal-expanded");
+
+        const tabButtons = ziel.querySelectorAll(".report-tab-btn");
+        const panels = ziel.querySelectorAll(".report-panel");
+
+        tabButtons.forEach(btn => {
+          btn.classList.toggle("active", btn.dataset.tab === "journal");
         });
 
-        ziel.classList.add("journal-expanded");
+        panels.forEach(panel => {
+          panel.classList.toggle("active", panel.dataset.panel === "journal");
+        });
 
         const preview = ziel.querySelector(".report-journal-preview");
         if (preview) {
@@ -2162,10 +2255,22 @@ function renderJournalAnsicht(app, news) {
         if (readBtn) {
           readBtn.textContent = "Weniger anzeigen";
         }
+
+        setTimeout(() => {
+          ziel.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+        }, 60);
+      } else {
+        console.warn("PIQu-Zielmeldung wurde nicht gefunden:", zielIds);
       }
 
       zielJournalId = null;
-    }, 50);
+      zielJournalIdAlternativen = [];
+    };
+
+    setTimeout(() => findeUndOeffneZiel(), 80);
   }
 }
 
@@ -2238,7 +2343,7 @@ function monitorStatusIcon(statusRaw) {
   const status = String(statusRaw || "").toLowerCase();
 
   if (status.includes("kraft")) return "🟢";
-  if (status.includes("verkündung") || status.includes("verkuendung")) return "🟢";
+  if (status.includes("verkündung") || status.includes("verkuendung") || status.includes("verkuendet")) return "🟢";
   if (status.includes("bundesrat")) return "🟣";
   if (status.includes("bundestag")) return "🔵";
   if (status.includes("anhörung") || status.includes("anhoerung")) return "🟡";
@@ -2273,11 +2378,77 @@ function monitorNormalisiereStatus(statusRaw) {
     .trim();
 }
 
+
+function monitorStatusAnzeigeText(statusRaw) {
+  const status = monitorNormalisiereStatus(statusRaw);
+
+  if (status.includes("angekuendigt")) return "Angekündigt";
+  if (status.includes("regierungsentwurf")) return "Regierungsentwurf";
+  if (status.includes("im_bundestag") || status.includes("bundestag_eingebracht")) return "Im Bundestag";
+  if (status.includes("ausschuss")) return "Ausschussberatung";
+  if (status.includes("anhoerung")) return "Anhörung";
+  if (status.includes("bundestag_beschlossen")) return "Bundestag beschlossen";
+  if (status.includes("im_bundesrat") || status.includes("bundesrat_befassung")) return "Im Bundesrat";
+  if (status.includes("bundesrat_abgeschlossen")) return "Bundesrat abgeschlossen";
+  if (status.includes("vermittlung")) return "Vermittlungsausschuss";
+  if (status.includes("verkuendet") || status.includes("verkuendung")) return "Verkündet";
+  if (status.includes("in_kraft") || status.includes("inkraft")) return "In Kraft";
+  if (status.includes("abgelehnt")) return "Abgelehnt";
+  if (status.includes("gescheitert")) return "Gescheitert";
+  if (status.includes("zurueckgezogen")) return "Zurückgezogen";
+  if (status.includes("archiviert")) return "Archiviert";
+  if (status.includes("erledigt")) return "Erledigt";
+
+  return statusRaw || "Status offen";
+}
+
+function monitorEreignisLabel(typRaw) {
+  const typ = monitorNormalisiereStatus(typRaw);
+
+  if (typ.includes("ankuendigung") || typ.includes("fruehphase")) return "Ankündigung";
+  if (typ.includes("referentenentwurf") || typ.includes("entwurf")) return "Entwurf";
+  if (typ.includes("kabinett")) return "Kabinett";
+  if (typ.includes("eingebracht") || typ.includes("bundestag")) return "Bundestag";
+  if (typ.includes("ausschuss")) return "Ausschussberatung";
+  if (typ.includes("anhoerung")) return "Anhörung";
+  if (typ.includes("bundesrat")) return "Bundesrat";
+  if (typ.includes("vermittlung")) return "Vermittlung";
+  if (typ.includes("verkuendet") || typ.includes("verkuendung") || typ.includes("bgbl")) return "Verkündung";
+  if (typ.includes("in_kraft") || typ.includes("inkraft")) return "In Kraft";
+  if (typ.includes("archiv")) return "Archiv";
+  if (typ.includes("abgelehnt") || typ.includes("gescheitert")) return "Beendet";
+
+  return typRaw || "Ereignis";
+}
+
+function monitorBereiche() {
+  return [
+    {
+      key: "entwicklung",
+      label: "In Entwicklung",
+      leerTitel: "Keine laufenden Vorhaben sichtbar.",
+      leerText: "Sobald PIQu ein laufendes Gesetzes- oder Reformvorhaben erkennt, erscheint es hier."
+    },
+    {
+      key: "fertig",
+      label: "Fertig / In Kraft",
+      leerTitel: "Keine fertigen Vorhaben sichtbar.",
+      leerText: "Abgeschlossene, verkündete oder geltende Vorhaben erscheinen hier."
+    },
+    {
+      key: "archiv",
+      label: "Archiv",
+      leerTitel: "Keine Archiv-Einträge sichtbar.",
+      leerText: "Ältere, erledigte oder nicht weiter verfolgte Vorhaben erscheinen später hier."
+    }
+  ];
+}
+
 function monitorStatusIndex(statusRaw) {
   const status = monitorNormalisiereStatus(statusRaw);
 
   if (status.includes("inkraft") || status.includes("in_kraft")) return 7;
-  if (status.includes("verkuendung")) return 6;
+  if (status.includes("verkuendung") || status.includes("verkuendet")) return 6;
   if (status.includes("bundesrat")) return 5;
   if (status.includes("bundestag")) return 4;
   if (status.includes("anhoerung")) return 3;
@@ -2447,7 +2618,7 @@ function monitorStatusBedeutung(statusRaw) {
     };
   }
 
-  if (status.includes("verkuendung")) {
+  if (status.includes("verkuendung") || status.includes("verkuendet")) {
     return {
       titel: "Bedeutung: Verkündung",
       text: "Verkündung bedeutet: Das Gesetz ist formal beschlossen und wird offiziell veröffentlicht. Erst danach kann es zu dem festgelegten Zeitpunkt wirksam werden."
@@ -2565,71 +2736,62 @@ function renderMonitorKlappBox(titel, inhaltHtml, extraClass = "", standardOffen
   `;
 }
 
-function renderMonitorPiquMeldung(e) {
-  if (!e) {
-    return renderMonitorKlappBox(
-      "PIQu-Meldung zum aktuellen Status",
-      `<p class="muted-text">Zu diesem Status ist noch kein Ereignis gespeichert.</p>`,
-      "monitor-current-report"
-    );
-  }
+function renderMonitorPiquMeldung(e, v = null) {
+  if (!e) return "";
 
   let journalMeldung = null;
 
-  if (e.news_id) {
+  if (e?.news_id) {
     journalMeldung = alleNews.find(n => String(n.id) === String(e.news_id));
   }
 
-  if (!journalMeldung && e.bundesrat_top_id) {
+  if (!journalMeldung && e?.bundesrat_top_id) {
     journalMeldung = alleNews.find(n =>
       n.ist_bundesrat_top === true &&
       (
         String(n.bundesrat_top_id || "") === String(e.bundesrat_top_id) ||
         String(n.top_id || "") === String(e.bundesrat_top_id) ||
+        String(n.id || "") === String(`bundesrat-db-${e.bundesrat_top_id}`) ||
         String(n.id || "") === String(`bundesrat-${n.sitzung}-${n.top_nummer}`)
       )
     );
   }
 
-  const headline = journalMeldung
-    ? baueJournalHeadline(journalMeldung)
-    : (e.titel || e.ereignis_label || "Meldung ohne Titel");
+  // Keine verknüpfte Journalmeldung = keinen Ersatztext anzeigen.
+  // Der Gesetzesmonitor bleibt dann reine Akten-/Statusansicht.
+  if (!journalMeldung) return "";
 
-  const artikelHtml = journalMeldung
-    ? baueJournalArtikel(journalMeldung)
-    : (
-        e.beschreibung
-          ? `<p>${escapeHTML(e.beschreibung)}</p>`
-          : `<p class="muted-text">Zu diesem Ereignis ist noch kein ausführlicher Journaltext gespeichert.</p>`
-      );
+  const headline = baueJournalHeadline(journalMeldung);
+  const zielBereich = istZukunftsMeldung(journalMeldung) ? "termine" : "journal";
+  const typText = journalMeldung.ist_bundesrat_top
+    ? "Zu diesem Monitor-Ereignis gibt es eine passende PIQu-Meldung aus dem Bundesrat-Bereich."
+    : "Zu diesem Monitor-Ereignis gibt es eine passende Journalmeldung.";
+  const buttonText = zielBereich === "termine"
+    ? "Zugehörigen Terminbericht öffnen"
+    : "Zugehörige Journalmeldung öffnen";
 
   return renderMonitorKlappBox(
-    "PIQu-Meldung zum aktuellen Status",
+    zielBereich === "termine" ? "Zugehöriger Terminbericht" : "Zugehörige Journalmeldung",
     `
-      <h3>${escapeHTML(headline)}</h3>
-
-      <div class="monitor-journal-fulltext">
-        ${artikelHtml}
-      </div>
+      <p>${escapeHTML(typText)}</p>
+      <p><b>${escapeHTML(headline)}</b></p>
 
       <div class="monitor-link-row">
-        ${
-          e.quelle_url
-            ? renderQuellenLink(e.quelle_url, "Originalquelle öffnen")
-            : ""
-        }
-
-        ${
-          journalMeldung
-            ? `<button class="monitor-journal-link" type="button" data-journal-id="${escapeHTML(journalMeldung.id)}">Zugehörige PIQu-Meldung</button>`
-            : ""
-        }
+        <button
+          class="monitor-journal-link"
+          type="button"
+          data-journal-id="${escapeHTML(journalMeldung.id || "")}" 
+          data-news-id="${escapeHTML(e.news_id || "")}" 
+          data-bundesrat-top-id="${escapeHTML(e.bundesrat_top_id || journalMeldung.bundesrat_top_id || journalMeldung.top_id || "")}" 
+          data-target-area="${escapeHTML(zielBereich)}"
+        >
+          ${escapeHTML(buttonText)}
+        </button>
       </div>
     `,
     "monitor-current-report"
   );
 }
-
 function renderMonitorBuergerErklaerung(v) {
   const text = ersterText(v.einfach_erklaert_text);
 
@@ -2649,17 +2811,34 @@ function renderMonitorKarte(v) {
 
   const ereignisse = monitorVorhabenEreignisse(v.id);
   const aktuellesEreignis = monitorAktuellesEreignis(ereignisse);
-  const statusLabel = v.status_label || v.status || "Status offen";
+  const statusLabel = v.status_label || monitorStatusAnzeigeText(v.status) || "Status offen";
   const statusIcon = monitorStatusIcon(statusLabel);
-  const letzteAktivitaet = v.letzte_aktivitaet || aktuellesEreignis?.ereignis_label || "Noch keine Aktivität gespeichert";
+  const letzteAktivitaet = ersterText(
+    v.letzte_aktivitaet,
+    v.letzte_aktivitaet_text,
+    aktuellesEreignis?.ereignis_label,
+    "Noch keine Aktivität gespeichert"
+  );
+
   const letzteAktivitaetDatum = v.letzte_aktivitaet_datum
     ? formatDatumKurz(v.letzte_aktivitaet_datum)
     : aktuellesEreignis?.datum
       ? formatDatumKurz(aktuellesEreignis.datum)
       : "ohne Datum";
 
-  const statusBedeutung = monitorStatusBedeutung(v.status || v.status_label);
-  const naechsterSchritt = monitorNaechsterSchritt(v, v.status || v.status_label);
+  const statusBedeutung = istGuterText(v.status_bedeutung_text)
+    ? {
+        titel: "Statusbedeutung",
+        text: v.status_bedeutung_text
+      }
+    : monitorStatusBedeutung(v.status || v.status_label);
+
+  const naechsterSchritt = istGuterText(v.naechster_schritt_text || v.naechster_schritt)
+    ? {
+        titel: "Nächster Schritt",
+        text: v.naechster_schritt_text || v.naechster_schritt
+      }
+    : monitorNaechsterSchritt(v, v.status || v.status_label);
 
   card.innerHTML = `
     <button class="monitor-file-row" type="button" aria-expanded="false">
@@ -2675,6 +2854,12 @@ function renderMonitorKarte(v) {
     </button>
 
     <div class="monitor-card-details">
+      ${
+        v.redaktionell_korrigiert
+          ? `<div class="monitor-admin-note">${escapeHTML(v.admin_hinweis_text || "Redaktionell korrigiert")}</div>`
+          : ""
+      }
+
       ${renderMonitorFortschritt(v, ereignisse)}
 
       ${renderMonitorKlappBox(
@@ -2697,12 +2882,12 @@ function renderMonitorKarte(v) {
 
       ${renderMonitorBuergerErklaerung(v)}
 
-      ${renderMonitorPiquMeldung(aktuellesEreignis)}
+      ${renderMonitorPiquMeldung(aktuellesEreignis, v)}
 
       ${renderMonitorKlappBox(
         "Hauptquelle",
         v.hauptquelle_url
-          ? `<div class="monitor-link-row">${renderQuellenLink(v.hauptquelle_url, "Hauptquelle öffnen")}</div>`
+          ? `<div class="monitor-link-row">${renderQuellenLink(v.hauptquelle_url, v.hauptquelle_label || "Hauptquelle öffnen")}</div>`
           : `<p class="muted-text">Keine Hauptquelle gespeichert.</p>`,
         "monitor-main-source-row"
       )}
@@ -2736,21 +2921,42 @@ function renderMonitorKarte(v) {
       event.stopPropagation();
 
       const journalId = btn.dataset.journalId;
-      if (!journalId) return;
+      const newsId = btn.dataset.newsId;
+      const bundesratTopId = btn.dataset.bundesratTopId;
+      const targetArea = btn.dataset.targetArea === "termine" ? "termine" : "journal";
 
-      zielJournalId = journalId;
-      aktiverBereich = "journal";
+      const zielIds = [
+        journalId,
+        newsId,
+        bundesratTopId ? `bundesrat-db-${bundesratTopId}` : "",
+        bundesratTopId ? `bundesrat-${bundesratTopId}` : ""
+      ].filter(Boolean);
+
+      if (zielIds.length === 0) return;
+
+      zielJournalId = zielIds[0];
+      zielJournalIdAlternativen = zielIds.slice(1);
+
+      aktiverBereich = targetArea;
       aktiveAnsicht = "journal";
+      aktiveEbene = "bund";
+      aktiveQuelle = "alle";
+      aktiverFilter = "alle";
+      zielMeldungId = null;
+
+      baueEbenenNavigation();
+      baueQuellenFilter();
+      baueFilter();
 
       const current = document.getElementById("piqu-toggle-current");
       if (current) {
-        current.textContent = bereichLabel("journal");
-        current.classList.remove("area-termine-text", "area-gesetzesmonitor-text");
-        current.classList.add("area-journal-text");
+        current.textContent = bereichLabel(targetArea);
+        current.classList.remove("area-journal-text", "area-termine-text", "area-gesetzesmonitor-text");
+        current.classList.add(targetArea === "termine" ? "area-termine-text" : "area-journal-text");
       }
 
       document.querySelectorAll(".piqu-area-btn").forEach(areaBtn => {
-        areaBtn.classList.toggle("active", areaBtn.dataset.area === "journal");
+        areaBtn.classList.toggle("active", areaBtn.dataset.area === targetArea);
       });
 
       renderNews();
@@ -2759,7 +2965,6 @@ function renderMonitorKarte(v) {
 
   return card;
 }
-
 
 function piquEnsureMonitorKlappStyles() {
   if (document.getElementById("piqu-monitor-klapp-styles")) return;
@@ -2847,6 +3052,65 @@ function piquEnsureMonitorKlappStyles() {
       background: rgba(255, 255, 255, 0.92);
     }
 
+
+    .monitor-area-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 14px 0 18px;
+    }
+
+    .monitor-area-tab {
+      border: 1px solid rgba(45, 72, 110, 0.16);
+      border-radius: 999px;
+      padding: 9px 13px;
+      background: rgba(255, 255, 255, 0.82);
+      color: #25324a;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(20, 40, 80, 0.05);
+    }
+
+    .monitor-area-tab.active {
+      background: rgba(28, 41, 64, 0.94);
+      color: #ffffff;
+      border-color: rgba(28, 41, 64, 0.94);
+    }
+
+    .monitor-area-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.6em;
+      margin-left: 6px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(45, 72, 110, 0.12);
+      font-size: 0.88em;
+    }
+
+    .monitor-area-tab.active .monitor-area-count {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .monitor-section-title {
+      margin: 8px 0 12px;
+      color: #1c2940;
+    }
+
+    .monitor-admin-note {
+      display: inline-flex;
+      align-items: center;
+      margin: 14px 0 4px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255, 245, 214, 0.95);
+      border: 1px solid rgba(180, 135, 35, 0.28);
+      color: #5f4212;
+      font-size: 0.92rem;
+      font-weight: 800;
+    }
+
     .qpi-link-target {
       margin-left: 6px;
       font-size: 0.88em;
@@ -2877,8 +3141,25 @@ function renderGesetzesmonitor(app) {
     return;
   }
 
-  const aktiveVorhaben = monitorVorhaben
-    .filter(v => v && v.archiviert !== true)
+  const bereiche = monitorBereiche();
+  const bereichKeys = bereiche.map(b => b.key);
+
+  if (!bereichKeys.includes(aktiverMonitorBereich)) {
+    aktiverMonitorBereich = "entwicklung";
+  }
+
+  const alleVorhaben = monitorVorhaben
+    .filter(v => v && v.archiviert !== true);
+
+  const zaehler = {};
+  bereiche.forEach(b => {
+    zaehler[b.key] = alleVorhaben.filter(v => (v.monitor_bereich || "entwicklung") === b.key).length;
+  });
+
+  const aktiveBereichInfo = bereiche.find(b => b.key === aktiverMonitorBereich) || bereiche[0];
+
+  const aktiveVorhaben = alleVorhaben
+    .filter(v => (v.monitor_bereich || "entwicklung") === aktiveBereichInfo.key)
     .sort((a, b) => {
       const datumA = new Date(a.letzte_aktivitaet_datum || a.letzte_aenderung || a.start_datum || 0).getTime();
       const datumB = new Date(b.letzte_aktivitaet_datum || b.letzte_aenderung || b.start_datum || 0).getTime();
@@ -2888,44 +3169,105 @@ function renderGesetzesmonitor(app) {
       return String(a.titel || "").localeCompare(String(b.titel || ""), "de");
     });
 
-  if (aktiveVorhaben.length === 0) {
-    app.innerHTML = `
-      <div class="empty-state">
-        <h3>⚖️ Noch keine Monitor-Vorhaben sichtbar.</h3>
-        <p>
-          Sobald PIQu geprüfte Gesetzes- oder Reformvorhaben erkennt und übernimmt,
-          erscheinen sie hier als Verlaufskarten.
-        </p>
-      </div>
-    `;
-    return;
-  }
-
   const header = document.createElement("section");
   header.className = "monitor-header";
   header.innerHTML = `
     <h2>⚖️ Gesetzesmonitor</h2>
     <p>
-      PIQu zeigt hier laufende politische Vorhaben als Akten:
+      PIQu zeigt hier politische Vorhaben als Akten:
       mit aktuellem Stand, letzter Aktivität und belegten Stationen aus offiziellen Quellen.
     </p>
   `;
   app.appendChild(header);
 
+  const tabs = document.createElement("div");
+  tabs.className = "monitor-area-tabs";
+  tabs.setAttribute("aria-label", "Bereiche im Gesetzesmonitor");
+
+  tabs.innerHTML = bereiche.map(b => `
+    <button class="monitor-area-tab ${b.key === aktiveBereichInfo.key ? "active" : ""}" type="button" data-monitor-bereich="${escapeHTML(b.key)}">
+      ${escapeHTML(b.label)}
+      <span class="monitor-area-count">${escapeHTML(String(zaehler[b.key] || 0))}</span>
+    </button>
+  `).join("");
+
+  tabs.querySelectorAll(".monitor-area-tab").forEach(btn => {
+    btn.addEventListener("click", () => {
+      aktiverMonitorBereich = btn.dataset.monitorBereich || "entwicklung";
+      renderGesetzesmonitor(app);
+    });
+  });
+
+  app.appendChild(tabs);
+
+  const sectionTitle = document.createElement("h3");
+  sectionTitle.className = "monitor-section-title";
+  sectionTitle.textContent = aktiveBereichInfo.label;
+  app.appendChild(sectionTitle);
+
+  if (aktiveVorhaben.length === 0) {
+    app.insertAdjacentHTML("beforeend", `
+      <div class="empty-state">
+        <h3>⚖️ ${escapeHTML(aktiveBereichInfo.leerTitel)}</h3>
+        <p>${escapeHTML(aktiveBereichInfo.leerText)}</p>
+      </div>
+    `);
+    return;
+  }
+
   const grid = document.createElement("section");
   grid.className = "monitor-grid";
 
+  const monitorDatumZaehler = {};
   aktiveVorhaben.forEach(v => {
+    const datumKey = String(
+      v.letzte_aktivitaet_datum ||
+      v.letzte_aktivitaet_am ||
+      v.letzte_aenderung ||
+      v.start_datum ||
+      "ohne-datum"
+    ).split("T")[0];
+
+    monitorDatumZaehler[datumKey] = (monitorDatumZaehler[datumKey] || 0) + 1;
+  });
+
+  let letztesMonitorDatum = null;
+
+  aktiveVorhaben.forEach(v => {
+    const datumKey = String(
+      v.letzte_aktivitaet_datum ||
+      v.letzte_aktivitaet_am ||
+      v.letzte_aenderung ||
+      v.start_datum ||
+      "ohne-datum"
+    ).split("T")[0];
+
+    if (datumKey !== letztesMonitorDatum) {
+      const datumHeader = document.createElement("h3");
+      datumHeader.className = "journal-day-header monitor-day-header";
+
+      datumHeader.textContent = datumKey === "ohne-datum"
+        ? `Ohne Datum (${monitorDatumZaehler[datumKey] || 0})`
+        : `${formatDatum(datumKey)} (${monitorDatumZaehler[datumKey] || 0})`;
+
+      grid.appendChild(datumHeader);
+      letztesMonitorDatum = datumKey;
+    }
+
     grid.appendChild(renderMonitorKarte(v));
   });
 
   app.appendChild(grid);
 }
 
-
 function renderNews() {
   const app = document.getElementById("app");
   if (!app) return;
+
+  document.body.classList.toggle(
+    "piqu-area-gesetzesmonitor-active",
+    aktiverBereich === "gesetzesmonitor"
+  );
 
   app.innerHTML = "";
   aktualisiereLevelInfo();
@@ -2966,7 +3308,33 @@ function renderNews() {
    DATEN LADEN
 ========================= */
 
-function aktualisiereUpdateAnzeige(data) {
+async function ladeStartKurzinfo() {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/piqu_start_kurzinfo_public_v2?select=datum,journalmeldungen_heute,politische_termine,monitor_aenderungen_heute,kurztext,termine_heute,kommende_termine,ausblick_text&limit=1`,
+      {
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    );
+
+    const data = await res.json();
+
+    if (!Array.isArray(data) || data.length === 0) {
+      console.warn("piqu_start_kurzinfo_public_v2 konnte nicht geladen werden:", data);
+      return null;
+    }
+
+    return data[0];
+  } catch (err) {
+    console.warn("Startseiten-Kurzinfo konnte nicht geladen werden:", err);
+    return null;
+  }
+}
+
+function aktualisiereUpdateAnzeige(data, kurzinfo = startKurzinfo) {
   const updateInfo = document.getElementById("update-info");
   if (!updateInfo) return;
 
@@ -2974,13 +3342,39 @@ function aktualisiereUpdateAnzeige(data) {
     .map(n => new Date(n.updated_at).getTime())
     .filter(t => !isNaN(t));
 
-  if (zeiten.length === 0) {
-    updateInfo.textContent = "Letztes Datenupdate: noch nicht verfügbar";
-    return;
-  }
+  const updateText = zeiten.length === 0
+    ? "Letztes Datenupdate: noch nicht verfügbar"
+    : "Letztes Datenupdate: " + formatUhrzeit(Math.max(...zeiten));
 
-  const neuesteZeit = Math.max(...zeiten);
-  updateInfo.textContent = "Letztes Datenupdate: " + formatUhrzeit(neuesteZeit);
+  const kurztext = kurzinfo && hatText(kurzinfo.kurztext)
+    ? String(kurzinfo.kurztext).trim()
+    : "";
+
+  const ausblickText = kurzinfo && hatText(kurzinfo.ausblick_text)
+    ? String(kurzinfo.ausblick_text).trim()
+    : "";
+
+  const kurzinfoHtml = (kurztext || ausblickText)
+    ? `
+      <div class="piqu-start-kurzinfo-card">
+        ${
+          kurztext
+            ? `<strong class="piqu-start-kurzinfo-line">${escapeHTML(kurztext)}</strong>`
+            : ""
+        }
+        ${
+          ausblickText
+            ? `<span class="piqu-start-ausblick-line">${escapeHTML(ausblickText)}</span>`
+            : ""
+        }
+      </div>
+    `
+    : "";
+
+  updateInfo.innerHTML = `
+    <span class="piqu-start-update-line">${escapeHTML(updateText)}</span>
+    ${kurzinfoHtml}
+  `;
 }
 
 
@@ -3220,99 +3614,199 @@ top_id: Number(top.id),
 
 async function ladeMonitorDaten() {
   try {
-    const monitorVorhabenSelect = [
-      "id",
-      "titel",
-      "kurzbeschreibung",
-      "status",
-      "status_label",
-      "betroffen",
-      "themen",
-      "start_datum",
-      "letzte_aenderung",
-      "inkrafttreten_datum",
-      "archiv_ab",
-      "aktiv",
-      "archiviert",
-      "hauptquelle_url",
-      "originalquelle_url",
-      "confidence",
-      "needs_review",
-      "letzte_aktivitaet",
-      "letzte_aktivitaet_datum",
-      "naechster_schritt",
-      "naechster_schritt_datum",
-      "created_at",
-      "updated_at",
-      "erklaerung_worum_geht_es",
-      "erklaerung_aktueller_stand",
-      "erklaerung_was_gilt_jetzt",
-      "erklaerung_betroffene_direkt",
-      "erklaerung_betroffene_indirekt",
-      "erklaerung_praktisches_beispiel",
-      "erklaerung_naechster_schritt",
-      "erklaerung_quellenlage",
-      "erklaerung_zusatzquellen",
-      "status_logik_flag",
-      "erklaerung_needs_review",
-      "buergerlicher_monitor_text",
-      "einfach_erklaert_text"
-    ].join(",");
-
-    const monitorEreignisseSelect = [
-      "id",
-      "vorhaben_id",
-      "ereignis_typ",
-      "ereignis_label",
-      "datum",
-      "titel",
-      "beschreibung",
-      "status_nach_ereignis",
-      "quelle",
-      "quelle_url",
-      "news_id",
-      "bundesrat_top_id",
-      "sort_order",
-      "created_at",
-      "updated_at"
-    ].join(",");
-
     const headers = {
       apikey: SUPABASE_KEY,
       Authorization: `Bearer ${SUPABASE_KEY}`
     };
 
-    const [vorhabenRes, ereignisseRes] = await Promise.all([
-      fetch(
-        `${SUPABASE_URL}/rest/v1/Monitor_Vorhaben_Public?select=${monitorVorhabenSelect}&order=letzte_aktivitaet_datum.desc`,
-        { headers }
-      ),
-      fetch(
-        `${SUPABASE_URL}/rest/v1/Monitor_Ereignisse_Public?select=${monitorEreignisseSelect}&order=sort_order.asc`,
-        { headers }
-      )
-    ]);
+    const select = [
+      "id",
+      "bereich_key",
+      "bereich_label",
+      "bereich_sortierung",
+      "status",
+      "titel",
+      "kurztitel",
+      "beschreibung_offiziell",
+      "einfach_erklaert_text",
+      "fortschritt_text",
+      "letzte_aktivitaet_text",
+      "status_bedeutung_text",
+      "piqu_meldung_text",
+      "naechster_schritt_text",
+      "hauptquelle_label",
+      "hauptquelle_url",
+      "gilt_ab",
+      "erledigt_am",
+      "letzte_aktivitaet_am",
+      "dip_vorgang_id",
+      "bundestag_drucksache",
+      "bundesrat_drucksache",
+      "bgbl_fundstelle",
+      "redaktionell_korrigiert",
+      "admin_hinweis_text",
+      "ereignisse",
+      "ereignisse_anzahl",
+      "created_at",
+      "updated_at"
+    ].join(",");
 
-    const vorhabenData = await vorhabenRes.json();
-    const ereignisseData = await ereignisseRes.json();
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/piqu_monitor_frontend_kompakt_v2?select=${select}&order=bereich_sortierung.asc,letzte_aktivitaet_am.desc.nullslast,created_at.desc`,
+      { headers }
+    );
 
-    monitorVorhaben = Array.isArray(vorhabenData) ? vorhabenData : [];
-    monitorEreignisse = Array.isArray(ereignisseData) ? ereignisseData : [];
+    const data = await res.json();
 
-    if (!Array.isArray(vorhabenData)) {
-      console.warn("Monitor_Vorhaben_Public konnte nicht geladen werden:", vorhabenData);
+    if (!Array.isArray(data)) {
+      console.warn("piqu_monitor_frontend_kompakt_v2 konnte nicht geladen werden:", data);
+      monitorVorhaben = [];
+      monitorEreignisse = [];
+      monitorJournalLinks = [];
+      return;
     }
 
-    if (!Array.isArray(ereignisseData)) {
-      console.warn("Monitor_Ereignisse_Public konnte nicht geladen werden:", ereignisseData);
+    const journalLinkMap = new Map();
+    monitorJournalLinks = [];
+
+    try {
+      const linkRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/piqu_monitor_journal_links_public_v2?select=ereignis_id,news_id,bundesrat_top_id,journal_typ`,
+        { headers }
+      );
+
+      const linkData = await linkRes.json();
+
+      if (Array.isArray(linkData)) {
+        monitorJournalLinks = linkData;
+
+        linkData.forEach(link => {
+          if (link && link.ereignis_id) {
+            journalLinkMap.set(String(link.ereignis_id), link);
+          }
+        });
+      } else {
+        console.warn("piqu_monitor_journal_links_public_v2 konnte nicht geladen werden:", linkData);
+      }
+    } catch (linkErr) {
+      console.warn("Journal-Verknüpfungen für den Monitor konnten nicht geladen werden:", linkErr);
     }
+
+    monitorVorhaben = data.map(row => {
+      const bereichKey = row.bereich_key || "entwicklung";
+
+      return {
+        id: row.id,
+
+        titel: row.titel || row.kurztitel || "Vorhaben ohne Titel",
+        kurztitel: row.kurztitel || row.titel || "Vorhaben ohne Titel",
+        kurzbeschreibung: row.beschreibung_offiziell || row.einfach_erklaert_text || "",
+
+        status: row.status || "unbekannt",
+        status_label: monitorStatusAnzeigeText(row.status),
+
+        monitor_bereich: bereichKey,
+        bereich_label: row.bereich_label || (
+          bereichKey === "fertig"
+            ? "Fertig / In Kraft"
+            : bereichKey === "archiv"
+              ? "Archiv"
+              : "In Entwicklung"
+        ),
+        bereich_sortierung: row.bereich_sortierung || 1,
+
+        betroffen: "",
+        themen: [],
+
+        start_datum: row.created_at,
+        letzte_aenderung: row.updated_at,
+        inkrafttreten_datum: row.gilt_ab,
+        archiv_ab: bereichKey === "archiv" ? row.erledigt_am : null,
+
+        aktiv: bereichKey !== "archiv",
+        archiviert: false,
+
+        hauptquelle_label: row.hauptquelle_label || "Hauptquelle",
+        hauptquelle_url: row.hauptquelle_url || "",
+        originalquelle_url: row.hauptquelle_url || "",
+
+        confidence: null,
+        needs_review: false,
+
+        letzte_aktivitaet: row.letzte_aktivitaet_text || "",
+        letzte_aktivitaet_text: row.letzte_aktivitaet_text || "",
+        letzte_aktivitaet_datum: row.letzte_aktivitaet_am,
+
+        naechster_schritt: row.naechster_schritt_text || "",
+        naechster_schritt_text: row.naechster_schritt_text || "",
+        naechster_schritt_datum: null,
+
+        fortschritt_text: row.fortschritt_text || "",
+        status_bedeutung_text: row.status_bedeutung_text || "",
+        piqu_meldung_text: row.piqu_meldung_text || "",
+
+        beschreibung_offiziell: row.beschreibung_offiziell || "",
+        buergerlicher_monitor_text: row.einfach_erklaert_text || "",
+        einfach_erklaert_text: row.einfach_erklaert_text || "",
+
+        dip_vorgang_id: row.dip_vorgang_id || "",
+        bundestag_drucksache: row.bundestag_drucksache || "",
+        bundesrat_drucksache: row.bundesrat_drucksache || "",
+        bgbl_fundstelle: row.bgbl_fundstelle || "",
+
+        redaktionell_korrigiert: row.redaktionell_korrigiert === true,
+        admin_hinweis_text: row.admin_hinweis_text || "",
+
+        ereignisse_anzahl: row.ereignisse_anzahl || 0,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+
+        _monitor_v2_raw: row
+      };
+    });
+
+    monitorEreignisse = data.flatMap(row => {
+      const ereignisse = Array.isArray(row.ereignisse) ? row.ereignisse : [];
+
+      return ereignisse.map((e, index) => {
+        const sortOrder = 1000 - index;
+        const journalLink = journalLinkMap.get(String(e.id)) || {};
+
+        return {
+          id: e.id,
+          vorhaben_id: row.id,
+
+          ereignis_typ: e.ereignis_typ || "ereignis",
+          ereignis_label: monitorEreignisLabel(e.ereignis_typ),
+          datum: e.ereignis_datum,
+
+          titel: e.titel || "Ereignis ohne Titel",
+          beschreibung: e.einfach_erklaert_text || e.beschreibung || "",
+
+          status_nach_ereignis: e.ereignis_typ || "",
+          quelle: e.quelle_titel || e.quelle_typ || "",
+          quelle_url: e.quelle_url || "",
+
+          news_id: journalLink.news_id || "",
+          bundesrat_top_id: journalLink.bundesrat_top_id || "",
+          journal_typ: journalLink.journal_typ || "",
+
+          sort_order: sortOrder,
+          created_at: e.created_at,
+          updated_at: e.updated_at,
+
+          redaktionell_korrigiert: e.redaktionell_korrigiert === true,
+          admin_hinweis_text: e.admin_hinweis_text || ""
+        };
+      });
+    });
   } catch (err) {
-    console.warn("Gesetzesmonitor konnte nicht geladen werden:", err);
+    console.warn("Gesetzesmonitor v2 konnte nicht geladen werden:", err);
     monitorVorhaben = [];
     monitorEreignisse = [];
+    monitorJournalLinks = [];
   }
 }
-
 
 async function ladeNews() {
   const app = document.getElementById("app");
@@ -3349,6 +3843,7 @@ async function ladeNews() {
 
     const bundesratTops = await ladeBundesratTops();
     await ladeMonitorDaten();
+    startKurzinfo = await ladeStartKurzinfo();
 
     alleNews = [
       ...newsOhneAlteBundesratMeldungen,
@@ -3372,6 +3867,159 @@ async function ladeNews() {
   }
 }
 
+
+/* =========================
+   FEHLER MELDEN
+========================= */
+
+function ermittleAktuellenFehlerBereich() {
+  if (aktiveAnsicht === "monitor") {
+    const bereichLabel =
+      aktiverMonitorBereich === "entwicklung" ? "In Entwicklung" :
+      aktiverMonitorBereich === "fertig" ? "Fertig / In Kraft" :
+      aktiverMonitorBereich === "archiv" ? "Archiv" :
+      aktiverMonitorBereich;
+
+    return `Gesetzesmonitor / ${bereichLabel}`;
+  }
+
+  if (aktiverBereich === "termine") {
+    return "Politische Termine";
+  }
+
+  return "Journal";
+}
+
+function baueFehlerMeldenMailto() {
+  const betreff = "PIQu Fehler melden";
+  const zeitpunkt = new Date().toLocaleString("de-DE");
+  const bereich = ermittleAktuellenFehlerBereich();
+  const url = window.location.href;
+
+  const text = [
+    "Hallo PIQu,",
+    "",
+    "ich habe einen Fehler gefunden:",
+    "",
+    `Bereich: ${bereich}`,
+    `Seite: ${url}`,
+    `Zeitpunkt: ${zeitpunkt}`,
+    "",
+    "Was ist falsch?",
+    "",
+    "",
+    "Welche Meldung oder welcher Monitor-Eintrag ist betroffen?",
+    "",
+    "",
+    "Was hätte ich erwartet?",
+    "",
+    ""
+  ].join("\n");
+
+  return `mailto:${FEHLER_EMAIL}?subject=${encodeURIComponent(betreff)}&body=${encodeURIComponent(text)}`;
+}
+
+function baueFehlerMeldenInfo() {
+  return `
+    <h2>Fehler melden</h2>
+
+    <p>
+      Wenn dir bei PIQu etwas auffällt, kannst du es kurz per E-Mail melden.
+      Der Link bereitet eine Nachricht mit Seite, Bereich und Zeitpunkt vor.
+    </p>
+
+    <div class="support-box">
+      <p>
+        <b>Bitte kurz beschreiben:</b><br>
+        Was ist falsch? Welche Meldung oder welcher Monitor-Eintrag ist betroffen?
+        Was hättest du erwartet?
+      </p>
+
+      <a class="support-button" href="${escapeHTML(baueFehlerMeldenMailto())}">
+        Fehler per E-Mail melden
+      </a>
+
+      <p class="support-smallprint">
+        Es wird kein Formular gespeichert und kein Nutzerkonto angelegt.
+        Die Meldung läuft über dein eigenes E-Mail-Programm.
+      </p>
+    </div>
+  `;
+}
+
+function piquInstallFehlerMeldenStyle() {
+  if (document.getElementById("piqu-fehler-melden-style")) return;
+
+  const style = document.createElement("style");
+  style.id = "piqu-fehler-melden-style";
+  style.textContent = `
+    .piqu-fehler-melden-btn {
+      position: fixed;
+      right: 16px;
+      top: 92px;
+      z-index: 900;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: #9a5a1f;
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(120, 53, 15, 0.22);
+    }
+
+    .piqu-fehler-melden-btn:hover {
+      background: #7c3f12;
+    }
+
+    .piqu-fehler-melden-btn:active {
+      transform: translateY(1px);
+    }
+
+    @media (max-width: 720px) {
+      .piqu-fehler-melden-btn {
+        right: 12px;
+        top: 76px;
+        padding: 9px 12px;
+        font-size: 12px;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+}
+
+function piquInstallFehlerMeldenButton() {
+  if (document.getElementById("piqu-fehler-melden-btn")) return;
+
+  piquInstallFehlerMeldenStyle();
+
+  const btn = document.createElement("button");
+  btn.id = "piqu-fehler-melden-btn";
+  btn.className = "piqu-fehler-melden-btn";
+  btn.type = "button";
+  btn.textContent = "Fehler melden";
+  btn.setAttribute("aria-label", "Fehler melden");
+
+  btn.addEventListener("click", () => {
+    oeffneInfo("fehler");
+  });
+
+  document.body.appendChild(btn);
+}
+
+function piquBootFehlerMelden() {
+  piquInstallFehlerMeldenButton();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", piquBootFehlerMelden);
+} else {
+  piquBootFehlerMelden();
+}
+
 /* =========================
    MODAL / EVENTS
 ========================= */
@@ -3382,7 +4030,11 @@ function oeffneInfo(key) {
 
   if (!modalLayer || !modalContent) return;
 
-  modalContent.innerHTML = infoTexte[key] || "<h2>Info</h2><p>Keine Information gefunden.</p>";
+  if (key === "fehler") {
+    modalContent.innerHTML = baueFehlerMeldenInfo();
+  } else {
+    modalContent.innerHTML = infoTexte[key] || "<h2>Info</h2><p>Keine Information gefunden.</p>";
+  }
   modalLayer.classList.remove("hidden");
 
   document.body.classList.add("modal-open");
@@ -4996,4 +5648,405 @@ async function piquAdminAssign(id) {
   } catch (err) {
     piquAdminSetOverlayStatus(err.message || String(err), true);
   }
+}
+/* ============================================================
+   PIQu Admin-Dashboard v2 – geheimes Q-Login
+   - 5x Klick direkt auf das Q im Startlogo
+   - Supabase Auth Magic-Link
+   - Dashboard über Edge Function: piqu-admin-monitor-dashboard
+   - keine sichtbare Änderung für normale Nutzer
+============================================================ */
+
+const PIQU_ADMIN_DASHBOARD_FUNCTION_NAME = "piqu-admin-monitor-dashboard";
+const PIQU_ADMIN_REDIRECT_URL = "https://codepen.io/Joale689/pen/OPbMmpe";
+const PIQU_ADMIN_DEFAULT_EMAIL = "black_diamond689@yahoo.de";
+
+let piquSecretAdminTapCount = 0;
+let piquSecretAdminLastTap = 0;
+let piquSecretAdminClientPromise = null;
+let piquSecretAdminIsLoading = false;
+
+/* Alte Monitor-Waage-Geheimlogik deaktivieren.
+   Der neue Einstieg läuft nur über das Q im Startlogo. */
+try {
+  if (typeof piquAdminInstallHiddenEntry === "function") {
+    piquAdminInstallHiddenEntry = function piquAdminInstallHiddenEntryDisabled() {};
+  }
+} catch (err) {
+  console.warn("Alte Admin-Einstiegslogik konnte nicht deaktiviert werden:", err);
+}
+
+function piquSecretAdminEscape(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+async function piquSecretAdminGetClient() {
+  if (piquSecretAdminClientPromise) {
+    return piquSecretAdminClientPromise;
+  }
+
+  piquSecretAdminClientPromise = import("https://esm.sh/@supabase/supabase-js@2")
+    .then(({ createClient }) => {
+      return createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          flowType: "pkce"
+        }
+      });
+    });
+
+  return piquSecretAdminClientPromise;
+}
+
+function piquSecretAdminInstallQTrigger() {
+  const logoSecondPart = document.querySelector(".hero-compact-main h1 .qpi-pi");
+
+  if (logoSecondPart && !document.getElementById("piqu-admin-q-trigger")) {
+    const text = logoSecondPart.textContent || "";
+
+    if (text.startsWith("Q")) {
+      const rest = text.slice(1);
+      logoSecondPart.innerHTML = `<span id="piqu-admin-q-trigger" class="piqu-admin-q-trigger" aria-hidden="true">Q</span>${piquSecretAdminEscape(rest)}`;
+    }
+  }
+
+  const trigger = document.getElementById("piqu-admin-q-trigger");
+  if (!trigger || trigger.dataset.piquAdminReady === "1") return;
+
+  trigger.dataset.piquAdminReady = "1";
+
+  trigger.addEventListener("pointerdown", event => {
+    event.stopPropagation();
+  });
+
+  trigger.addEventListener("click", event => {
+    event.preventDefault();
+    event.stopPropagation();
+    piquSecretAdminHandleQClick();
+  });
+}
+
+function piquSecretAdminHandleQClick() {
+  const now = Date.now();
+
+  if (now - piquSecretAdminLastTap > 5000) {
+    piquSecretAdminTapCount = 0;
+  }
+
+  piquSecretAdminLastTap = now;
+  piquSecretAdminTapCount += 1;
+
+  // Bewusst kein sichtbares Feedback.
+  if (piquSecretAdminTapCount >= 5) {
+    piquSecretAdminTapCount = 0;
+    piquSecretAdminLastTap = 0;
+    piquSecretAdminOpen();
+  }
+}
+
+function piquSecretAdminEnsureOverlay() {
+  let overlay = document.getElementById("piqu-secret-admin-dashboard-overlay");
+  if (overlay) return overlay;
+
+  overlay = document.createElement("div");
+  overlay.id = "piqu-secret-admin-dashboard-overlay";
+  overlay.className = "piqu-secret-admin-dashboard-overlay hidden";
+
+  overlay.innerHTML = `
+    <div class="piqu-secret-admin-dashboard-window" role="dialog" aria-modal="true" aria-label="PIQu Admin-Dashboard">
+      <div class="piqu-secret-admin-dashboard-head">
+        <div>
+          <h2>PIQu Admin</h2>
+          <p>Geheimer Monitor-v2-Adminbereich</p>
+        </div>
+        <button id="piqu-secret-admin-close" class="piqu-secret-admin-close" type="button" aria-label="Adminbereich schließen">×</button>
+      </div>
+
+      <div id="piqu-secret-admin-login-box" class="piqu-secret-admin-box">
+        <h3>Login</h3>
+        <p class="piqu-secret-admin-muted">Nur freigegebene Admin-Konten erhalten Zugriff.</p>
+        <input id="piqu-secret-admin-email" type="email" autocomplete="email" placeholder="Admin-E-Mail" value="${piquSecretAdminEscape(PIQU_ADMIN_DEFAULT_EMAIL)}" />
+        <button id="piqu-secret-admin-send-login" type="button">Login-Link senden</button>
+        <button id="piqu-secret-admin-check-session" class="piqu-secret-admin-secondary" type="button">Login prüfen</button>
+      </div>
+
+      <div id="piqu-secret-admin-user-box" class="piqu-secret-admin-box hidden">
+        <p>Angemeldet als: <strong id="piqu-secret-admin-user-email">-</strong></p>
+        <button id="piqu-secret-admin-load-dashboard" type="button">Dashboard laden</button>
+        <button id="piqu-secret-admin-logout" class="piqu-secret-admin-secondary" type="button">Abmelden</button>
+      </div>
+
+      <p id="piqu-secret-admin-message" class="piqu-secret-admin-message"></p>
+
+      <div id="piqu-secret-admin-dashboard" class="piqu-secret-admin-dashboard hidden">
+        <div class="piqu-secret-admin-status-row">
+          <span id="piqu-secret-admin-ampel" class="piqu-secret-admin-ampel">-</span>
+          <p id="piqu-secret-admin-status-text">-</p>
+        </div>
+
+        <h3 class="piqu-secret-admin-section-title">Monitor</h3>
+        <div class="piqu-secret-admin-grid">
+          <div class="piqu-secret-admin-stat"><span>Öffentliche Akten</span><strong id="piqu-secret-admin-akten">-</strong></div>
+          <div class="piqu-secret-admin-stat"><span>Ereignisse</span><strong id="piqu-secret-admin-ereignisse">-</strong></div>
+          <div class="piqu-secret-admin-stat"><span>Geparkte Eingänge</span><strong id="piqu-secret-admin-geparkt">-</strong></div>
+          <div class="piqu-secret-admin-stat"><span>Alte Vorschläge</span><strong id="piqu-secret-admin-alt">-</strong></div>
+          <div class="piqu-secret-admin-stat"><span>Bundesrat-TOPs</span><strong id="piqu-secret-admin-br">-</strong></div>
+          <div class="piqu-secret-admin-stat"><span>Fehler</span><strong id="piqu-secret-admin-fehler">-</strong></div>
+          <div class="piqu-secret-admin-stat"><span>Prüfung fällig</span><strong id="piqu-secret-admin-pruefung">-</strong></div>
+          <div class="piqu-secret-admin-stat"><span>Bald verwerfen</span><strong id="piqu-secret-admin-bald">-</strong></div>
+        </div>
+
+        <h3 class="piqu-secret-admin-section-title">DIP / Bundestag</h3>
+        <div class="piqu-secret-admin-grid">
+          <div class="piqu-secret-admin-stat piqu-secret-admin-stat-good"><span>DIP offen</span><strong id="piqu-secret-admin-dip-offen">-</strong></div>
+          <div class="piqu-secret-admin-stat"><span>DIP erledigt</span><strong id="piqu-secret-admin-dip-erledigt">-</strong></div>
+          <div class="piqu-secret-admin-stat piqu-secret-admin-stat-good"><span>Bundesrat ohne DIP</span><strong id="piqu-secret-admin-dip-br-offen">-</strong></div>
+          <div class="piqu-secret-admin-stat piqu-secret-admin-stat-good"><span>Titel ohne DIP</span><strong id="piqu-secret-admin-dip-titel-offen">-</strong></div>
+        </div>
+
+        <h3 class="piqu-secret-admin-section-title">BGBl / recht.bund</h3>
+        <div class="piqu-secret-admin-grid">
+          <div class="piqu-secret-admin-stat"><span>BGBl beobachten</span><strong id="piqu-secret-admin-bgbl-beobachten">-</strong></div>
+          <div class="piqu-secret-admin-stat"><span>BGBl nicht relevant</span><strong id="piqu-secret-admin-bgbl-nicht-relevant">-</strong></div>
+          <div class="piqu-secret-admin-stat piqu-secret-admin-stat-good"><span>BGBl Prüfung nötig</span><strong id="piqu-secret-admin-bgbl-pruefung">-</strong></div>
+          <div class="piqu-secret-admin-stat piqu-secret-admin-stat-good"><span>BGBl Sonderfälle</span><strong id="piqu-secret-admin-bgbl-sonderfaelle">-</strong></div>
+        </div>
+
+        <details class="piqu-secret-admin-raw-details">
+          <summary>Rohdaten anzeigen</summary>
+          <pre id="piqu-secret-admin-raw"></pre>
+        </details>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+
+  document.getElementById("piqu-secret-admin-close")?.addEventListener("click", piquSecretAdminClose);
+  document.getElementById("piqu-secret-admin-send-login")?.addEventListener("click", piquSecretAdminSendLoginLink);
+  document.getElementById("piqu-secret-admin-check-session")?.addEventListener("click", piquSecretAdminRefreshSessionView);
+  document.getElementById("piqu-secret-admin-load-dashboard")?.addEventListener("click", piquSecretAdminLoadDashboard);
+  document.getElementById("piqu-secret-admin-logout")?.addEventListener("click", piquSecretAdminLogout);
+
+  overlay.addEventListener("click", event => {
+    if (event.target === overlay) {
+      piquSecretAdminClose();
+    }
+  });
+
+  return overlay;
+}
+
+function piquSecretAdminSetMessage(text, type = "") {
+  const msg = document.getElementById("piqu-secret-admin-message");
+  if (!msg) return;
+
+  msg.textContent = text || "";
+  msg.classList.remove("ok", "error");
+
+  if (type) {
+    msg.classList.add(type);
+  }
+}
+
+function piquSecretAdminSetText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value ?? "-";
+}
+
+async function piquSecretAdminOpen() {
+  const overlay = piquSecretAdminEnsureOverlay();
+  overlay.classList.remove("hidden");
+  document.body.classList.add("piqu-secret-admin-scroll-lock");
+  await piquSecretAdminRefreshSessionView();
+}
+
+function piquSecretAdminClose() {
+  const overlay = document.getElementById("piqu-secret-admin-dashboard-overlay");
+  if (overlay) overlay.classList.add("hidden");
+  document.body.classList.remove("piqu-secret-admin-scroll-lock");
+}
+
+async function piquSecretAdminRefreshSessionView() {
+  piquSecretAdminEnsureOverlay();
+
+  try {
+    const client = await piquSecretAdminGetClient();
+    const { data, error } = await client.auth.getSession();
+
+    const loginBox = document.getElementById("piqu-secret-admin-login-box");
+    const userBox = document.getElementById("piqu-secret-admin-user-box");
+    const userEmail = document.getElementById("piqu-secret-admin-user-email");
+
+    if (error || !data.session) {
+      loginBox?.classList.remove("hidden");
+      userBox?.classList.add("hidden");
+      if (error) piquSecretAdminSetMessage("Noch nicht eingeloggt: " + error.message, "error");
+      return false;
+    }
+
+    loginBox?.classList.add("hidden");
+    userBox?.classList.remove("hidden");
+    if (userEmail) userEmail.textContent = data.session.user.email || "unbekannt";
+
+    piquSecretAdminSetMessage("Login aktiv. Dashboard kann geladen werden.", "ok");
+    return true;
+  } catch (err) {
+    piquSecretAdminSetMessage(err instanceof Error ? err.message : String(err), "error");
+    return false;
+  }
+}
+
+async function piquSecretAdminSendLoginLink() {
+  if (piquSecretAdminIsLoading) return;
+
+  const email = document.getElementById("piqu-secret-admin-email")?.value?.trim() || "";
+
+  if (!email) {
+    piquSecretAdminSetMessage("Bitte Admin-E-Mail eingeben.", "error");
+    return;
+  }
+
+  try {
+    piquSecretAdminIsLoading = true;
+    piquSecretAdminSetMessage("Login-Link wird gesendet...", "");
+
+    const client = await piquSecretAdminGetClient();
+    const { error } = await client.auth.signInWithOtp({
+      email,
+      options: {
+        shouldCreateUser: false,
+        emailRedirectTo: PIQU_ADMIN_REDIRECT_URL
+      }
+    });
+
+    if (error) throw error;
+
+    piquSecretAdminSetMessage("Login-Link wurde gesendet. Bitte E-Mail prüfen.", "ok");
+  } catch (err) {
+    piquSecretAdminSetMessage(err instanceof Error ? err.message : String(err), "error");
+  } finally {
+    piquSecretAdminIsLoading = false;
+  }
+}
+
+async function piquSecretAdminLogout() {
+  try {
+    const client = await piquSecretAdminGetClient();
+    await client.auth.signOut();
+  } finally {
+    document.getElementById("piqu-secret-admin-dashboard")?.classList.add("hidden");
+    await piquSecretAdminRefreshSessionView();
+    piquSecretAdminSetMessage("Abgemeldet.", "ok");
+  }
+}
+
+async function piquSecretAdminLoadDashboard() {
+  if (piquSecretAdminIsLoading) return;
+
+  try {
+    piquSecretAdminIsLoading = true;
+    piquSecretAdminSetMessage("Dashboard wird geladen...", "");
+
+    const client = await piquSecretAdminGetClient();
+    const { data: sessionData } = await client.auth.getSession();
+
+    if (!sessionData.session) {
+      await piquSecretAdminRefreshSessionView();
+      piquSecretAdminSetMessage("Nicht eingeloggt.", "error");
+      return;
+    }
+
+    const { data, error } = await client.functions.invoke(PIQU_ADMIN_DASHBOARD_FUNCTION_NAME, {
+      method: "GET"
+    });
+
+    if (error) throw error;
+
+    if (!data || data.ok !== true) {
+      throw new Error(data?.message || data?.error || "Admin-Abruf wurde abgelehnt.");
+    }
+
+    const payload = data.payload || {};
+    const dashboard = payload.dashboard || {};
+
+    piquSecretAdminSetText("piqu-secret-admin-akten", dashboard.akten_oeffentlich);
+    piquSecretAdminSetText("piqu-secret-admin-ereignisse", dashboard.ereignisse_oeffentlich);
+    piquSecretAdminSetText("piqu-secret-admin-geparkt", dashboard.geparkt_gesamt);
+    piquSecretAdminSetText("piqu-secret-admin-alt", dashboard.alte_monitor_vorschlaege);
+    piquSecretAdminSetText("piqu-secret-admin-br", dashboard.bundesrat_tops);
+    piquSecretAdminSetText("piqu-secret-admin-fehler", dashboard.fehler);
+    piquSecretAdminSetText("piqu-secret-admin-pruefung", dashboard.pruefung_faellig);
+    piquSecretAdminSetText("piqu-secret-admin-bald", dashboard.bald_verwerfen);
+
+    piquSecretAdminSetText("piqu-secret-admin-dip-offen", dashboard.dip_offen);
+    piquSecretAdminSetText("piqu-secret-admin-dip-erledigt", dashboard.dip_erledigt);
+    piquSecretAdminSetText("piqu-secret-admin-dip-br-offen", dashboard.dip_bundesrat_offen);
+    piquSecretAdminSetText("piqu-secret-admin-dip-titel-offen", dashboard.dip_titel_offen);
+
+    piquSecretAdminSetText("piqu-secret-admin-bgbl-beobachten", dashboard.bgbl_beobachten);
+    piquSecretAdminSetText("piqu-secret-admin-bgbl-nicht-relevant", dashboard.bgbl_nicht_relevant);
+    piquSecretAdminSetText("piqu-secret-admin-bgbl-pruefung", dashboard.bgbl_pruefung_noetig);
+    piquSecretAdminSetText("piqu-secret-admin-bgbl-sonderfaelle", dashboard.bgbl_sonderfaelle);
+
+    const ampel = document.getElementById("piqu-secret-admin-ampel");
+    if (ampel) {
+      ampel.textContent = dashboard.admin_ampel || "-";
+      ampel.dataset.ampel = dashboard.admin_ampel || "";
+    }
+
+    piquSecretAdminSetText("piqu-secret-admin-status-text", dashboard.admin_status_text || "-");
+
+    const raw = document.getElementById("piqu-secret-admin-raw");
+    if (raw) raw.textContent = JSON.stringify(data, null, 2);
+
+    document.getElementById("piqu-secret-admin-dashboard")?.classList.remove("hidden");
+    piquSecretAdminSetMessage("Dashboard geladen.", "ok");
+  } catch (err) {
+    piquSecretAdminSetMessage(err instanceof Error ? err.message : String(err), "error");
+  } finally {
+    piquSecretAdminIsLoading = false;
+  }
+}
+
+async function piquSecretAdminAutoHandleReturnFromLogin() {
+  const hasAuthReturn =
+    window.location.hash.includes("access_token=") ||
+    window.location.search.includes("code=") ||
+    window.location.hash.includes("error=");
+
+  if (!hasAuthReturn) return;
+
+  piquSecretAdminEnsureOverlay();
+  const ok = await piquSecretAdminRefreshSessionView();
+
+  if (ok) {
+    await piquSecretAdminOpen();
+    await piquSecretAdminLoadDashboard();
+  } else {
+    await piquSecretAdminOpen();
+  }
+}
+
+function piquSecretAdminBoot() {
+  piquSecretAdminInstallQTrigger();
+
+  // Falls das Logo später neu gerendert wird.
+  window.setTimeout(piquSecretAdminInstallQTrigger, 500);
+  window.setTimeout(piquSecretAdminInstallQTrigger, 1500);
+
+  piquSecretAdminAutoHandleReturnFromLogin();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", piquSecretAdminBoot);
+} else {
+  piquSecretAdminBoot();
 }

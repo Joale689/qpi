@@ -111,17 +111,59 @@ a {
 
 .hero-update-row {
   grid-area: update;
-  margin-top: 12px;
+  margin-top: 20px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
   flex-wrap: wrap;
 }
 
 .hero-update-row #update-info {
-  margin: 0;
+  display: grid;
+  gap: 8px;
+  margin: 4px 0 0;
   font-size: 14px;
   color: #bac7db;
+}
+
+.piqu-start-update-line {
+  display: block;
+  color: #bac7db;
+  font-size: 13.5px;
+  line-height: 1.25;
+}
+
+.piqu-start-kurzinfo-card {
+  width: fit-content;
+  max-width: min(620px, 100%);
+  margin-top: 4px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(191, 219, 254, 0.28);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 10px 24px rgba(15, 23, 42, 0.18);
+  backdrop-filter: blur(10px);
+}
+
+.piqu-start-kurzinfo-line,
+.piqu-start-ausblick-line {
+  display: block;
+  line-height: 1.35;
+}
+
+.piqu-start-kurzinfo-line {
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.piqu-start-ausblick-line {
+  margin-top: 2px;
+  color: #dbeafe;
+  font-size: 13.5px;
+  font-weight: 700;
 }
 
 .refresh-inline-btn {
@@ -2945,4 +2987,516 @@ body.piqu-admin-scroll-lock {
 
 .monitor-citizen-field p {
   margin: 0;
+}
+/* ============================================================
+   PIQu Admin-Dashboard v2 – geheimes Q-Login
+   Sichtbarer Einstieg bleibt versteckt: kein Rahmen, kein Blinken,
+   kein Hinweis für normale Nutzer.
+============================================================ */
+
+.piqu-admin-q-trigger {
+  cursor: inherit;
+  user-select: none;
+}
+
+.piqu-secret-admin-scroll-lock {
+  overflow: hidden !important;
+}
+
+.piqu-secret-admin-dashboard-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(15, 23, 42, 0.58);
+  backdrop-filter: blur(4px);
+}
+
+.piqu-secret-admin-dashboard-overlay.hidden {
+  display: none !important;
+}
+
+.piqu-secret-admin-dashboard-window {
+  width: min(980px, 100%);
+  max-height: min(86vh, 860px);
+  overflow: auto;
+  background: #ffffff;
+  color: #1f2937;
+  border-radius: 22px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.piqu-secret-admin-dashboard-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px 22px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.piqu-secret-admin-dashboard-head h2 {
+  margin: 0;
+  font-size: 26px;
+  color: #0f172a;
+}
+
+.piqu-secret-admin-dashboard-head p {
+  margin: 4px 0 0;
+  color: #64748b;
+}
+
+.piqu-secret-admin-close {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #0f172a;
+  font-size: 24px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.piqu-secret-admin-close:hover {
+  background: #cbd5e1;
+}
+
+.piqu-secret-admin-box,
+.piqu-secret-admin-dashboard {
+  margin: 18px 22px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.piqu-secret-admin-box.hidden,
+.piqu-secret-admin-dashboard.hidden {
+  display: none !important;
+}
+
+.piqu-secret-admin-box h3 {
+  margin: 0 0 8px;
+  color: #111827;
+}
+
+.piqu-secret-admin-muted {
+  margin: 0 0 12px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+#piqu-secret-admin-email {
+  width: min(420px, 100%);
+  display: block;
+  margin: 0 0 10px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  font-size: 15px;
+}
+
+.piqu-secret-admin-box button,
+.piqu-secret-admin-dashboard button {
+  margin: 0 8px 8px 0;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 999px;
+  background: #1e293b;
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.piqu-secret-admin-box button:hover,
+.piqu-secret-admin-dashboard button:hover {
+  background: #0f172a;
+}
+
+.piqu-secret-admin-box button.piqu-secret-admin-secondary,
+.piqu-secret-admin-dashboard button.piqu-secret-admin-secondary {
+  background: #64748b;
+}
+
+.piqu-secret-admin-message {
+  min-height: 22px;
+  margin: 0 22px 16px;
+  color: #475569;
+  font-weight: 700;
+}
+
+.piqu-secret-admin-message.ok {
+  color: #166534;
+}
+
+.piqu-secret-admin-message.error {
+  color: #991b1b;
+}
+
+.piqu-secret-admin-status-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.piqu-secret-admin-ampel {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.piqu-secret-admin-ampel[data-ampel="gruen"] {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.piqu-secret-admin-ampel[data-ampel="orange"] {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.piqu-secret-admin-ampel[data-ampel="rot"] {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.piqu-secret-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.piqu-secret-admin-stat {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.piqu-secret-admin-stat span {
+  display: block;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.piqu-secret-admin-stat strong {
+  display: block;
+  margin-top: 4px;
+  color: #0f172a;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.piqu-secret-admin-raw-details {
+  margin-top: 16px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.piqu-secret-admin-raw-details summary {
+  padding: 12px 14px;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+#piqu-secret-admin-raw {
+  margin: 0;
+  max-height: 360px;
+  overflow: auto;
+  padding: 14px;
+  background: #0f172a;
+  color: #e5e7eb;
+  font-size: 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (max-width: 640px) {
+  .piqu-secret-admin-dashboard-overlay {
+    align-items: stretch;
+    padding: 10px;
+  }
+
+  .piqu-secret-admin-dashboard-window {
+    max-height: 94vh;
+    border-radius: 18px;
+  }
+
+  .piqu-secret-admin-dashboard-head {
+    padding: 16px;
+  }
+
+  .piqu-secret-admin-box,
+  .piqu-secret-admin-dashboard,
+  .piqu-secret-admin-message {
+    margin-left: 14px;
+    margin-right: 14px;
+  }
+}
+
+/* ============================================================
+   PIQu Admin-Dashboard v2 – kompakter Feinschliff
+   Ziel: weniger Höhe, bessere Handy-/CodePen-Darstellung.
+   Nur Darstellung, keine Sicherheits-/Login-Änderung.
+============================================================ */
+
+.piqu-secret-admin-dashboard-overlay {
+  padding: 10px;
+  align-items: center;
+}
+
+.piqu-secret-admin-dashboard-window {
+  width: min(940px, calc(100vw - 20px));
+  max-height: min(88vh, 760px);
+  border-radius: 18px;
+}
+
+.piqu-secret-admin-dashboard-head {
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+.piqu-secret-admin-dashboard-head h2 {
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.piqu-secret-admin-dashboard-head p {
+  margin-top: 3px;
+  font-size: 13px;
+}
+
+.piqu-secret-admin-close {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  font-size: 22px;
+}
+
+.piqu-secret-admin-box,
+.piqu-secret-admin-dashboard {
+  margin: 12px 16px;
+  padding: 12px;
+  border-radius: 16px;
+}
+
+.piqu-secret-admin-box h3 {
+  margin-bottom: 6px;
+  font-size: 18px;
+}
+
+.piqu-secret-admin-muted {
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+
+#piqu-secret-admin-email {
+  min-height: 38px;
+  margin-bottom: 9px;
+  padding: 9px 11px;
+  font-size: 14px;
+}
+
+.piqu-secret-admin-box button,
+.piqu-secret-admin-dashboard button {
+  min-height: 38px;
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.piqu-secret-admin-message {
+  min-height: 18px;
+  margin: 6px 16px 12px;
+  font-size: 13px;
+}
+
+.piqu-secret-admin-status-row {
+  gap: 9px;
+  margin-bottom: 12px;
+}
+
+.piqu-secret-admin-status-row p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.piqu-secret-admin-ampel {
+  min-height: 28px;
+  padding: 4px 11px;
+  font-size: 13px;
+}
+
+.piqu-secret-admin-grid {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 9px;
+}
+
+.piqu-secret-admin-stat {
+  padding: 10px 12px;
+  border-radius: 14px;
+}
+
+.piqu-secret-admin-stat span {
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.piqu-secret-admin-stat strong {
+  margin-top: 3px;
+  font-size: 24px;
+}
+
+.piqu-secret-admin-raw-details {
+  margin-top: 12px;
+  border-radius: 12px;
+}
+
+.piqu-secret-admin-raw-details summary {
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+#piqu-secret-admin-raw {
+  max-height: 220px;
+  padding: 12px;
+  font-size: 11px;
+}
+
+@media (max-width: 640px) {
+  .piqu-secret-admin-dashboard-overlay {
+    align-items: stretch;
+    padding: 8px;
+  }
+
+  .piqu-secret-admin-dashboard-window {
+    width: 100%;
+    max-height: 96vh;
+    border-radius: 16px;
+  }
+
+  .piqu-secret-admin-dashboard-head {
+    padding: 11px 12px;
+  }
+
+  .piqu-secret-admin-dashboard-head h2 {
+    font-size: 20px;
+  }
+
+  .piqu-secret-admin-dashboard-head p {
+    font-size: 12px;
+  }
+
+  .piqu-secret-admin-close {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+  }
+
+  .piqu-secret-admin-box,
+  .piqu-secret-admin-dashboard {
+    margin: 10px;
+    padding: 10px;
+  }
+
+  .piqu-secret-admin-message {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+
+  .piqu-secret-admin-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .piqu-secret-admin-stat {
+    padding: 9px 10px;
+  }
+
+  .piqu-secret-admin-stat strong {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 380px) {
+  .piqu-secret-admin-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================
+   GESETZESMONITOR: JOURNAL-FILTER AUSBLENDEN
+========================= */
+
+body.piqu-area-gesetzesmonitor-active .filter-grid,
+body.piqu-area-gesetzesmonitor-active .filter-grid-simple {
+  display: none !important;
+}
+
+body.piqu-area-gesetzesmonitor-active .qpi-control-panel {
+  padding-bottom: 14px;
+}
+
+.monitor-current-report .monitor-journal-fulltext {
+  display: none !important;
+}
+
+/* ============================================================
+   PIQu Admin-Dashboard: DIP / BGBl-Erweiterung
+============================================================ */
+
+.piqu-secret-admin-section-title {
+  margin: 14px 0 8px;
+  color: #0f172a;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.piqu-secret-admin-stat-good {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.piqu-secret-admin-stat-good span {
+  color: #166534;
+}
+
+.piqu-secret-admin-stat-good strong {
+  color: #166534;
+}
+
+/* =========================
+   STARTSEITEN-KURZINFO-KÄSTCHEN
+========================= */
+
+@media (max-width: 640px) {
+  .piqu-start-kurzinfo-card {
+    width: 100%;
+    max-width: none;
+  }
+
+  .hero-update-row #update-info {
+    width: 100%;
+  }
 }

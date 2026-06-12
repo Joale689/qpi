@@ -1,10 +1,10 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PIQu – Politik direkt aus der Quelle</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PIQu – Politik aus offiziellen Quellen</title>
+  <link rel="stylesheet" href="./style.css?v=beta-20260612-2">
 </head>
 <body>
 <header id="header">
@@ -54,7 +54,7 @@
 
       <p class="hero-short-text">
         PIQu zeigt politische Meldungen als lesbaren Journaltext.
-        Fakten und offizielle Quellen bleiben direkt am Bericht prüfbar.
+        Fakten, Status und offizielle Quellen bleiben direkt am Bericht prüfbar.
       </p>
 
       <div class="hero-update-row">
@@ -81,7 +81,7 @@
         </div>
 
         <div class="hero-info-group hero-info-group-project">
-          <button class="info-btn info-btn-project info-btn-roadmap" type="button" data-info="roadmap">Demnächst</button>
+          <button class="info-btn info-btn-project info-btn-roadmap" type="button" data-info="roadmap">Stand &amp; Ausblick</button>
           <button class="info-btn info-btn-project" type="button" data-info="spenden">Unterstützung</button>
         </div>
       </div>
@@ -141,37 +141,43 @@
 </div>
 
 <section id="roadmap">
-  <h2>Was kommt demnächst?</h2>
+  <h2>Stand der Beta &amp; Ausblick</h2>
 
   <div class="roadmap-grid">
     <div class="roadmap-card done">
-      <h3>Bereits aktiv</h3>
+      <h3>Bereits aktiv in der Beta</h3>
       <ul>
-        <li>Bundestag, Bundesregierung und Bundesrat als Bundesquellen</li>
-        <li>automatische Datenaktualisierung</li>
-        <li>Journalansicht mit Fakten- und Quellenreitern</li>
-        <li>Status-, Quellen- und Zitatfilter</li>
-        <li>geprüfte öffentliche Bundesrat-Ansicht</li>
+        <li>Journal mit offiziellen Bundesquellen</li>
+        <li>politische Termine im Bundesbereich</li>
+        <li>Gesetzesmonitor mit Entwicklung, Fertig / In Kraft und Archiv</li>
+        <li>Bundestag/DIP, Bundesrat und BGBl/recht.bund.de als Monitor-Quellen</li>
+        <li>verständliche Erklärtexte mit Fakten- und Quellenbereich</li>
+        <li>Datumsbalken für Tagesmeldungen</li>
+        <li>Fehler melden per vorbereiteter E-Mail</li>
+        <li>freiwilliger Unterstützungsbereich</li>
       </ul>
     </div>
 
     <div class="roadmap-card progress">
-      <h3>In Arbeit</h3>
+      <h3>Wird laufend verbessert</h3>
       <ul>
-        <li>Website-Darstellung weiter vereinfachen</li>
-        <li>Berichtskarten optisch verbessern</li>
-        <li>KI-Erklärungen kontrolliert weiter verbessern</li>
-        <li>Impressum, Datenschutz, Haftung und AGB finalisieren</li>
+        <li>Datenqualität und automatische Zuordnung</li>
+        <li>verständlichere Erklärtexte</li>
+        <li>Quellenprüfung und Statuslogik im Gesetzesmonitor</li>
+        <li>Admin-Kontrolle im Hintergrund</li>
+        <li>Bedienkomfort auf Handy und Desktop</li>
+        <li>rechtliche Hinweise und Transparenztexte</li>
       </ul>
     </div>
 
     <div class="roadmap-card later">
       <h3>Später geplant</h3>
       <ul>
-        <li>Bundesländer, Landkreise und Gemeinden</li>
+        <li>Bundesländer</li>
+        <li>Landkreise</li>
+        <li>Gemeinden</li>
         <li>Teilen-Funktion / Kurz-Karten</li>
-        <li>Einstellungen für Standardansicht</li>
-        <li>freiwilliger Unterstützungsbereich</li>
+        <li>persönliche Einstellungen für Standardansicht</li>
       </ul>
     </div>
   </div>
@@ -180,7 +186,7 @@
 <footer id="footer">
   <div class="footer-brand">
     <strong>PIQu</strong><br>
-    Politik direkt aus der Quelle &mdash; verständlich erklärt
+    Politik aus offiziellen Quellen &mdash; verständlich erklärt
   </div>
 
   <div class="footer-links">
@@ -209,6 +215,7 @@
     <div id="modal-content"></div>
   </div>
 </div>
-  <script src="script.js"></script>
+
+  <script src="./script.js?v=beta-20260612-2" defer></script>
 </body>
 </html>
