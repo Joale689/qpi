@@ -3500,3 +3500,13 @@ body.piqu-area-gesetzesmonitor-active .qpi-control-panel {
     width: 100%;
   }
 }
+.journal-beta-hinweis{
+  margin:12px 0 18px 0;
+  padding:12px 14px;
+  border-left:4px solid #c47a2c;
+  background:#fff8ef;
+  border-radius:10px;
+  font-size:0.95rem;
+  line-height:1.45;
+  color:#3f2a13;
+}
