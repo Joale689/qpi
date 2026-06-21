@@ -3259,7 +3259,19 @@ function renderGesetzesmonitor(app) {
 
   app.appendChild(grid);
 }
+function renderJournalBetaHinweis(app) {
+  if (!app || aktiverBereich !== "journal" || aktiveAnsicht !== "journal") return;
 
+  const box = document.createElement("div");
+  box.className = "journal-beta-hinweis";
+  box.innerHTML = `
+    <strong>Journal 2.1 Beta</strong><br>
+    Seit 21.06.2026 werden neue Journalmeldungen nach erweiterten Recherche- und Qualitätsregeln erstellt.
+    Ältere Meldungen können noch aus dem bisherigen Journal-System stammen.
+  `;
+
+  app.appendChild(box);
+}
 function renderNews() {
   const app = document.getElementById("app");
   if (!app) return;
@@ -3298,10 +3310,11 @@ function renderNews() {
   }
 
   if (aktiveAnsicht === "journal") {
-    renderJournalAnsicht(app, news);
-  } else {
-    renderOriginalAnsicht(app, news);
-  }
+  renderJournalBetaHinweis(app);
+  renderJournalAnsicht(app, news);
+} else {
+  renderOriginalAnsicht(app, news);
+}
 }
 
 /* =========================
